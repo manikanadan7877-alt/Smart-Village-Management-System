@@ -76,7 +76,6 @@ function AppRoutes() {
       <Route path="/analytics" element={<ProtectedRoute adminOnly><AnalyticsPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
-      {/* Module routes */}
       <Route path="/agriculture" element={<ProtectedRoute><AgriculturePage /></ProtectedRoute>} />
       <Route path="/healthcare" element={<ProtectedRoute><HealthcarePage /></ProtectedRoute>} />
       <Route path="/education" element={<ProtectedRoute><EducationPage /></ProtectedRoute>} />

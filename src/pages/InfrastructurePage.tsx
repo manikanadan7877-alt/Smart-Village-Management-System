@@ -1,85 +1,59 @@
-import { useNavigate } from 'react-router-dom';
-import { ModuleHeader, FeatureGrid, ModuleCardBox, ModulePageWrapper, StatusRow } from '@/components/ModulePage';
-import {
-  Wrench, Route, Building, Building2, Lightbulb, Construction,
-  AlertTriangle, TrendingUp,
-} from 'lucide-react';
-
-const FEATURES = [
-  { icon: Route, label: 'Roads', value: '18 km', color: '#64748b' },
-  { icon: Building2, label: 'Bridges', value: '2', color: '#64748b' },
-  { icon: Building, label: 'Govt Buildings', value: '6', color: '#3b82f6' },
-  { icon: Lightbulb, label: 'Street Lights', value: '48', color: '#eab308' },
-  { icon: Construction, label: 'Active Projects', value: '3', color: '#f59e0b' },
-  { icon: AlertTriangle, label: 'Road Damages', value: '5', color: '#ef4444' },
-  { icon: Wrench, label: 'Maintenance Due', value: '2', color: '#f59e0b' },
-  { icon: TrendingUp, label: 'Asset Value', value: '2.4 Cr', color: '#22c55e' },
-];
+import { HardHat, Route, Lightbulb, Building2 } from 'lucide-react';
 
 export function InfrastructurePage() {
-  const navigate = useNavigate();
+  const stats = [
+    { label: 'Road Projects', value: '6', icon: Route, color: 'orange' },
+    { label: 'Street Lights', value: '340', icon: Lightbulb, color: 'amber' },
+    { label: 'Buildings', value: '12', icon: Building2, color: 'slate' },
+    { label: 'Active Projects', value: '3', icon: HardHat, color: 'blue' },
+  ];
+
+  const colorMap: Record<string, string> = {
+    orange: 'bg-orange-50 text-orange-600',
+    amber: 'bg-amber-50 text-amber-600',
+    slate: 'bg-slate-100 text-slate-600',
+    blue: 'bg-blue-50 text-blue-600',
+  };
+
   return (
-    <ModulePageWrapper>
-      <ModuleHeader title="Infrastructure" subtitle="Roads, bridges, buildings, street lights, and government assets" icon={Wrench} color="#64748b" />
-      <FeatureGrid features={FEATURES} />
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <ModuleCardBox title="Road Condition" icon={Route} color="#64748b">
-          <div className="space-y-2.5">
-            <StatusRow label="Main Street" value="Good" status="good" />
-            <StatusRow label="Market Road" value="2 potholes" status="bad" />
-            <StatusRow label="School Road" value="Good" status="good" />
-            <StatusRow label="Farm Access Road" value="Worn surface" status="moderate" />
-            <StatusRow label="Ring Road" value="Good" status="good" />
-          </div>
-        </ModuleCardBox>
-
-        <ModuleCardBox title="Street Light Status" icon={Lightbulb} color="#eab308">
-          <div className="space-y-2.5">
-            <StatusRow label="Main Street (12)" value="All working" status="good" />
-            <StatusRow label="Market Road (8)" value="2 not working" status="bad" />
-            <StatusRow label="School Zone (10)" value="All working" status="good" />
-            <StatusRow label="Park Area (8)" value="All working" status="good" />
-            <StatusRow label="Residential (10)" value="All working" status="good" />
-          </div>
-        </ModuleCardBox>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900">Infrastructure</h1>
+        <p className="mt-1 text-sm text-slate-500">Monitor roads, lighting, and public infrastructure</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <ModuleCardBox title="Active Projects" icon={Construction} color="#f59e0b">
-          <div className="space-y-3">
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-sm font-semibold text-slate-700">Drainage Upgrade — Main Street</p>
-              <p className="mt-1 text-xs text-slate-500">Progress: 65% | Expected: Sep 2026</p>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className="card">
+            <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${colorMap[stat.color]}`}>
+              <stat.icon size={20} />
             </div>
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-sm font-semibold text-slate-700">Bus Stop Construction</p>
-              <p className="mt-1 text-xs text-slate-500">Progress: 40% | Expected: Oct 2026</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-sm font-semibold text-slate-700">Street Light Replacement — Market Road</p>
-              <p className="mt-1 text-xs text-slate-500">Progress: 20% | Expected: Aug 2026</p>
-            </div>
+            <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+            <p className="text-xs text-slate-500">{stat.label}</p>
           </div>
-        </ModuleCardBox>
-
-        <ModuleCardBox title="Infrastructure Risk Assessment" icon={AlertTriangle} color="#ef4444" actionLabel="View AI Analytics" onAction={() => navigate('/analytics')}>
-          <div className="space-y-3">
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-sm font-semibold text-slate-700">Market Road — High Risk</p>
-              <p className="mt-1 text-xs text-slate-500">2 potholes need immediate repair. Monsoon risk: high.</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-sm font-semibold text-slate-700">Farm Access Bridge — Moderate</p>
-              <p className="mt-1 text-xs text-slate-500">Minor cracks detected. Inspection recommended within 30 days.</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-sm font-semibold text-slate-700">Old Drainage System — Low Risk</p>
-              <p className="mt-1 text-xs text-slate-500">Upgrade in progress. Current system functional.</p>
-            </div>
-          </div>
-        </ModuleCardBox>
+        ))}
       </div>
-    </ModulePageWrapper>
+
+      <div className="card">
+        <h2 className="mb-4 font-bold text-slate-900">Active Projects</h2>
+        <div className="space-y-3">
+          {[
+            { name: 'Road Repair - Main Street', progress: 65 },
+            { name: 'Street Light Installation', progress: 40 },
+            { name: 'Community Hall Renovation', progress: 80 },
+          ].map((project) => (
+            <div key={project.name} className="rounded-xl bg-slate-50 p-3">
+              <div className="mb-2 flex justify-between">
+                <p className="text-sm font-medium text-slate-900">{project.name}</p>
+                <span className="text-xs text-slate-500">{project.progress}%</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                <div className="h-full rounded-full bg-orange-500" style={{ width: `${project.progress}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

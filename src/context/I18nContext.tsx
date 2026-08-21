@@ -1,59 +1,57 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import type { Language, VillageContext } from '@/lib/village-types';
-import { translations } from '@/lib/i18n';
+import { createContext, useContext, useState, type ReactNode } from 'react';
+
+type Language = 'en' | 'hi';
 
 interface I18nContextValue {
-  lang: Language;
-  setLang: (l: Language) => void;
+  language: Language;
+  setLanguage: (lang: Language) => void;
   t: (key: string) => string;
-  village: VillageContext | null;
-  setVillage: (v: VillageContext | null) => void;
 }
+
+const translations: Record<Language, Record<string, string>> = {
+  en: {
+    dashboard: 'Dashboard',
+    complaints: 'Complaints',
+    map: 'Digital Twin Map',
+    profile: 'Profile',
+    settings: 'Settings',
+    signOut: 'Sign Out',
+    submitComplaint: 'Report an Issue',
+    waterTanks: 'Water Tanks',
+    garbageBins: 'Garbage Bins',
+    analytics: 'Analytics',
+    agriculture: 'Agriculture',
+    healthcare: 'Healthcare',
+    education: 'Education',
+    infrastructure: 'Infrastructure',
+  },
+  hi: {
+    dashboard: 'डैशबोर्ड',
+    complaints: 'शिकायतें',
+    map: 'डिजिटल ट्विन मानचित्र',
+    profile: 'प्रोफ़ाइल',
+    settings: 'सेटिंग्स',
+    signOut: 'साइन आउट',
+    submitComplaint: 'शिकायत दर्ज करें',
+    waterTanks: 'जल टैंक',
+    garbageBins: 'कचरा बिन',
+    analytics: 'विश्लेषण',
+    agriculture: 'कृषि',
+    healthcare: 'स्वास्थ्य सेवा',
+    education: 'शिक्षा',
+    infrastructure: 'बुनियादी ढांचा',
+  },
+};
 
 const I18nContext = createContext<I18nContextValue | undefined>(undefined);
 
-const DEFAULT_VILLAGE: VillageContext = {
-  name: 'Melur',
-  district: 'Madurai',
-  state: 'Tamil Nadu',
-  country: 'India',
-  latitude: 10.0532,
-  longitude: 78.3394,
-};
-
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Language>(() => {
-    return (localStorage.getItem('village-lang') as Language) || 'en';
-  });
-  const [village, setVillageState] = useState<VillageContext | null>(() => {
-    const stored = localStorage.getItem('village-context');
-    return stored ? JSON.parse(stored) : DEFAULT_VILLAGE;
-  });
+  const [language, setLanguage] = useState<Language>('en');
 
-  useEffect(() => {
-    localStorage.setItem('village-lang', lang);
-  }, [lang]);
-
-  useEffect(() => {
-    if (village) {
-      localStorage.setItem('village-context', JSON.stringify(village));
-    }
-  }, [village]);
-
-  function setLang(l: Language) {
-    setLangState(l);
-  }
-
-  function setVillage(v: VillageContext | null) {
-    setVillageState(v);
-  }
-
-  function t(key: string): string {
-    return translations[lang][key] ?? translations.en[key] ?? key;
-  }
+  const t = (key: string) => translations[language][key] ?? key;
 
   return (
-    <I18nContext.Provider value={{ lang, setLang, t, village, setVillage }}>
+    <I18nContext.Provider value={{ language, setLanguage, t }}>
       {children}
     </I18nContext.Provider>
   );
@@ -61,6 +59,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
 export function useI18n() {
   const ctx = useContext(I18nContext);
-  if (!ctx) throw new Error('useI18n must be used within I18nProvider');
+  if (!ctx) {
+    throw new Error('useI18n must be used within I18nProvider');
+  }
   return ctx;
 }

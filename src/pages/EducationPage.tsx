@@ -1,91 +1,56 @@
-import { useNavigate } from 'react-router-dom';
-import { ModuleHeader, FeatureGrid, ModuleCardBox, ModulePageWrapper, StatusRow } from '@/components/ModulePage';
-import {
-  GraduationCap, School, Users, BookOpen, Calendar, Award,
-  Building, TrendingUp,
-} from 'lucide-react';
-
-const FEATURES = [
-  { icon: School, label: 'Schools', value: '4', color: '#3b82f6' },
-  { icon: Users, label: 'Students', value: '386', color: '#3b82f6' },
-  { icon: GraduationCap, label: 'Teachers', value: '24', color: '#22c55e' },
-  { icon: Calendar, label: 'Avg Attendance', value: '91%', color: '#22c55e' },
-  { icon: Award, label: 'Scholarship Students', value: '42', color: '#eab308' },
-  { icon: Building, label: 'Libraries', value: '2', color: '#06b6d4' },
-  { icon: BookOpen, label: 'Textbooks Issued', value: '1,240', color: '#22c55e' },
-  { icon: TrendingUp, label: 'Pass Rate', value: '94%', color: '#22c55e' },
-];
+import { GraduationCap, Users, BookOpen, School } from 'lucide-react';
 
 export function EducationPage() {
-  const navigate = useNavigate();
+  const stats = [
+    { label: 'Schools', value: '4', icon: School, color: 'indigo' },
+    { label: 'Students', value: '420', icon: Users, color: 'blue' },
+    { label: 'Teachers', value: '18', icon: GraduationCap, color: 'green' },
+    { label: 'Libraries', value: '2', icon: BookOpen, color: 'amber' },
+  ];
+
+  const colorMap: Record<string, string> = {
+    indigo: 'bg-indigo-50 text-indigo-600',
+    blue: 'bg-blue-50 text-blue-600',
+    green: 'bg-green-50 text-green-600',
+    amber: 'bg-amber-50 text-amber-600',
+  };
+
   return (
-    <ModulePageWrapper>
-      <ModuleHeader title="Education" subtitle="Schools, students, teachers, attendance, and performance" icon={GraduationCap} color="#3b82f6" />
-      <FeatureGrid features={FEATURES} />
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <ModuleCardBox title="Schools Overview" icon={School} color="#3b82f6">
-          <div className="space-y-2.5">
-            <StatusRow label="Govt Primary School" value="142 students" status="good" />
-            <StatusRow label="Govt High School" value="168 students" status="good" />
-            <StatusRow label="Panchayat Middle School" value="56 students" status="good" />
-            <StatusRow label="Anganwadi Center" value="20 children" status="good" />
-          </div>
-        </ModuleCardBox>
-
-        <ModuleCardBox title="Attendance Today" icon={Calendar} color="#22c55e">
-          <div className="space-y-3">
-            <div>
-              <div className="mb-1.5 flex justify-between text-sm">
-                <span className="font-medium text-slate-600">Primary School</span>
-                <span className="font-bold text-slate-900">94%</span>
-              </div>
-              <div className="h-2.5 w-full rounded-full bg-slate-100">
-                <div className="h-2.5 rounded-full bg-green-500 transition-all" style={{ width: '94%' }} />
-              </div>
-            </div>
-            <div>
-              <div className="mb-1.5 flex justify-between text-sm">
-                <span className="font-medium text-slate-600">High School</span>
-                <span className="font-bold text-slate-900">89%</span>
-              </div>
-              <div className="h-2.5 w-full rounded-full bg-slate-100">
-                <div className="h-2.5 rounded-full bg-green-500 transition-all" style={{ width: '89%' }} />
-              </div>
-            </div>
-            <div>
-              <div className="mb-1.5 flex justify-between text-sm">
-                <span className="font-medium text-slate-600">Middle School</span>
-                <span className="font-bold text-slate-900">91%</span>
-              </div>
-              <div className="h-2.5 w-full rounded-full bg-slate-100">
-                <div className="h-2.5 rounded-full bg-green-500 transition-all" style={{ width: '91%' }} />
-              </div>
-            </div>
-          </div>
-        </ModuleCardBox>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900">Education</h1>
+        <p className="mt-1 text-sm text-slate-500">Monitor educational facilities and enrollment</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <ModuleCardBox title="Student Performance" icon={TrendingUp} color="#eab308" actionLabel="View Analytics" onAction={() => navigate('/analytics')}>
-          <div className="space-y-2.5">
-            <StatusRow label="10th Board Result" value="94% pass" status="good" />
-            <StatusRow label="12th Board Result" value="88% pass" status="good" />
-            <StatusRow label="Science Olympiad" value="2 medals" status="good" />
-            <StatusRow label="Sports Achievements" value="District level" status="good" />
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className="card">
+            <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${colorMap[stat.color]}`}>
+              <stat.icon size={20} />
+            </div>
+            <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+            <p className="text-xs text-slate-500">{stat.label}</p>
           </div>
-        </ModuleCardBox>
-
-        <ModuleCardBox title="School Facilities" icon={Building} color="#06b6d4">
-          <div className="space-y-2.5">
-            <StatusRow label="Smart Classroom" value="2 schools" status="good" />
-            <StatusRow label="Computer Lab" value="3 labs" status="good" />
-            <StatusRow label="Playground" value="All schools" status="good" />
-            <StatusRow label="Drinking Water" value="All schools" status="good" />
-            <StatusRow label="Toilets" value="All schools" status="good" />
-          </div>
-        </ModuleCardBox>
+        ))}
       </div>
-    </ModulePageWrapper>
+
+      <div className="card">
+        <h2 className="mb-4 font-bold text-slate-900">Schools Overview</h2>
+        <div className="space-y-3">
+          {[
+            { name: 'Government Primary School', students: 180, level: 'Primary' },
+            { name: 'Zilla Parishad High School', students: 160, level: 'Secondary' },
+            { name: 'Anganwadi Center', students: 80, level: 'Pre-Primary' },
+          ].map((school) => (
+            <div key={school.name} className="flex items-center justify-between rounded-xl bg-slate-50 p-3">
+              <div>
+                <p className="text-sm font-medium text-slate-900">{school.name}</p>
+                <p className="text-xs text-slate-500">{school.students} students · {school.level}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

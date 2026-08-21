@@ -1,73 +1,81 @@
-import { useNavigate } from 'react-router-dom';
-import { ModuleHeader, ModulePageWrapper, ModuleCardBox, StatusRow } from '@/components/ModulePage';
-import { useAuth } from '@/context/AuthContext';
-import { Settings, Bell, Globe, Shield, User, Palette } from 'lucide-react';
+import { useI18n } from '@/context/I18nContext';
+import { Globe, Bell, Shield } from 'lucide-react';
 
 export function SettingsPage() {
-  const { profile } = useAuth();
-  const navigate = useNavigate();
+  const { language, setLanguage } = useI18n();
 
   return (
-    <ModulePageWrapper>
-      <ModuleHeader title="Settings" subtitle="Manage your account and application preferences" icon={Settings} color="#64748b" />
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <ModuleCardBox title="Account" icon={User} color="#3b82f6" actionLabel="Edit Profile" onAction={() => navigate('/profile')}>
-          <div className="space-y-2.5">
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-xs text-slate-500">Full Name</p>
-              <p className="text-sm font-semibold text-slate-900">{profile?.full_name || 'User'}</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-xs text-slate-500">Role</p>
-              <p className="text-sm font-semibold text-slate-900 capitalize">{profile?.role || '—'}</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-xs text-slate-500">Phone</p>
-              <p className="text-sm font-semibold text-slate-900">{profile?.phone || 'Not set'}</p>
-            </div>
-          </div>
-        </ModuleCardBox>
-
-        <ModuleCardBox title="Notifications" icon={Bell} color="#f59e0b">
-          <div className="space-y-2.5">
-            <StatusRow label="Water level alerts" value="Enabled" status="good" />
-            <StatusRow label="Waste collection alerts" value="Enabled" status="good" />
-            <StatusRow label="Complaint updates" value="Enabled" status="good" />
-            <StatusRow label="Emergency notifications" value="Enabled" status="good" />
-            <StatusRow label="Weekly report emails" value="Disabled" status="moderate" />
-          </div>
-        </ModuleCardBox>
-
-        <ModuleCardBox title="Language & Region" icon={Globe} color="#06b6d4">
-          <div className="space-y-3">
-            <div>
-              <p className="mb-2 text-sm font-medium text-slate-600">Display Language</p>
-              <div className="flex gap-2">
-                <button className="rounded-lg bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">English</button>
-                <button className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">தமிழ்</button>
-              </div>
-            </div>
-            <div>
-              <p className="mb-2 text-sm font-medium text-slate-600">Timezone</p>
-              <p className="text-sm text-slate-700">Asia/Kolkata (IST)</p>
-            </div>
-            <div>
-              <p className="mb-2 text-sm font-medium text-slate-600">Date Format</p>
-              <p className="text-sm text-slate-700">DD/MM/YYYY</p>
-            </div>
-          </div>
-        </ModuleCardBox>
-
-        <ModuleCardBox title="Security" icon={Shield} color="#22c55e">
-          <div className="space-y-2.5">
-            <StatusRow label="Email Verification" value="Verified" status="good" />
-            <StatusRow label="Two-Factor Auth" value="Disabled" status="moderate" />
-            <StatusRow label="Session Timeout" value="30 minutes" status="good" />
-            <StatusRow label="Password Last Changed" value="Never" status="moderate" />
-          </div>
-        </ModuleCardBox>
+    <div className="max-w-2xl space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
+        <p className="mt-1 text-sm text-slate-500">Manage your application preferences</p>
       </div>
-    </ModulePageWrapper>
+
+      <div className="card space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+            <Globe size={20} />
+          </div>
+          <div>
+            <p className="font-semibold text-slate-900">Language</p>
+            <p className="text-xs text-slate-500">Choose your preferred language</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => setLanguage('en')}
+            className={`rounded-xl border-2 p-3 text-sm font-semibold transition-all ${
+              language === 'en' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600'
+            }`}
+          >
+            English
+          </button>
+          <button
+            onClick={() => setLanguage('hi')}
+            className={`rounded-xl border-2 p-3 text-sm font-semibold transition-all ${
+              language === 'hi' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600'
+            }`}
+          >
+            हिन्दी (Hindi)
+          </button>
+        </div>
+      </div>
+
+      <div className="card space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+            <Bell size={20} />
+          </div>
+          <div>
+            <p className="font-semibold text-slate-900">Notifications</p>
+            <p className="text-xs text-slate-500">Manage your notification preferences</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-slate-600">Email notifications</span>
+          <button className="relative h-6 w-11 rounded-full bg-blue-600">
+            <span className="absolute right-0.5 top-0.5 h-5 w-5 rounded-full bg-white" />
+          </button>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-slate-600">Push notifications</span>
+          <button className="relative h-6 w-11 rounded-full bg-slate-200">
+            <span className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white" />
+          </button>
+        </div>
+      </div>
+
+      <div className="card space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600">
+            <Shield size={20} />
+          </div>
+          <div>
+            <p className="font-semibold text-slate-900">Privacy & Security</p>
+            <p className="text-xs text-slate-500">Your data is protected with Row Level Security</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
