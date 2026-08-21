@@ -15,29 +15,6 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-function formatAuthError(error: unknown): string {
-  if (error instanceof Error) {
-    const msg = error.message;
-    if (msg.includes('Failed to fetch') || msg.includes('fetch')) {
-      return 'Unable to connect to the server. Please check your internet connection and try again.';
-    }
-    if (msg.includes('Invalid login credentials')) {
-      return 'Invalid email or password. Please try again.';
-    }
-    if (msg.includes('Email not confirmed')) {
-      return 'Please check your email and click the confirmation link before signing in.';
-    }
-    if (msg.includes('already registered') || msg.includes('already in use')) {
-      return 'This email is already registered. Try signing in instead.';
-    }
-    if (msg.includes('Password should be') || msg.includes('password')) {
-      return 'Password must be at least 6 characters long.';
-    }
-    return msg;
-  }
-  return 'An unexpected error occurred. Please try again.';
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -91,35 +68,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signIn(email: string, password: string) {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      return { error: error ? formatAuthError(error) : null };
-    } catch (err) {
-      return { error: formatAuthError(err) };
-    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    return { error: error?.message ?? null };
   }
 
   async function signUp(email: string, password: string, fullName: string, role: UserRole) {
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: fullName, role },
-        },
-      });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName, role },
+      },
+    });
 
-      if (error) {
-        return { error: formatAuthError(error) };
-      }
-
-      // The database trigger (handle_new_user) creates the profile row
-      // automatically with full_name and role from user metadata.
-
-      return { error: null };
-    } catch (err) {
-      return { error: formatAuthError(err) };
+    if (error) {
+      return { error: error.message };
     }
+
+    // If signup succeeded and we have a user, set their role in the profile.
+    // The trigger creates the profile row; we update the role here.
+    if (data.user) {
+      // Wait briefly for the trigger to create the profile, then update role.
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ role, full_name: fullName })
+        .eq('id', data.user.id);
+
+      if (profileError) {
+        // Retry once — trigger may not have committed yet.
+        await new Promise((r) => setTimeout(r, 500));
+        await supabase
+          .from('profiles')
+          .update({ role, full_name: fullName })
+          .eq('id', data.user.id);
+      }
+    }
+
+    return { error: null };
   }
 
   async function signOut() {

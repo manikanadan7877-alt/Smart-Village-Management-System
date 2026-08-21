@@ -14,13 +14,11 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState<UserRole>('citizen');
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setSuccess(null);
     setLoading(true);
 
     if (isSignup) {
@@ -29,9 +27,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
         setError(error);
         setLoading(false);
       } else {
-        setSuccess('Account created successfully! You can now sign in.');
-        setLoading(false);
-        setTimeout(() => navigate('/login'), 1500);
+        navigate('/dashboard');
       }
     } else {
       const { error } = await signIn(email, password);
@@ -197,12 +193,6 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
             {error && (
               <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
                 {error}
-              </div>
-            )}
-
-            {success && (
-              <div className="rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-600">
-                {success}
               </div>
             )}
 

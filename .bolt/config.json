@@ -1,1 +1,3 @@
-{"startScript": "dev"}
+{
+  "template": "bolt-vite-react-ts"
+}

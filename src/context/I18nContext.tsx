@@ -1,66 +1,69 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
-type Language = 'en' | 'hi';
+import { translations, type Language } from "./i18n";
 
-interface I18nContextValue {
+type TranslationKey = keyof typeof translations.en;
+
+interface I18nContextType {
   language: Language;
-  setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  setLanguage: (language: Language) => void;
+  t: (key: TranslationKey) => string;
 }
 
-const translations: Record<Language, Record<string, string>> = {
-  en: {
-    dashboard: 'Dashboard',
-    complaints: 'Complaints',
-    map: 'Digital Twin Map',
-    profile: 'Profile',
-    settings: 'Settings',
-    signOut: 'Sign Out',
-    submitComplaint: 'Report an Issue',
-    waterTanks: 'Water Tanks',
-    garbageBins: 'Garbage Bins',
-    analytics: 'Analytics',
-    agriculture: 'Agriculture',
-    healthcare: 'Healthcare',
-    education: 'Education',
-    infrastructure: 'Infrastructure',
-  },
-  hi: {
-    dashboard: 'डैशबोर्ड',
-    complaints: 'शिकायतें',
-    map: 'डिजिटल ट्विन मानचित्र',
-    profile: 'प्रोफ़ाइल',
-    settings: 'सेटिंग्स',
-    signOut: 'साइन आउट',
-    submitComplaint: 'शिकायत दर्ज करें',
-    waterTanks: 'जल टैंक',
-    garbageBins: 'कचरा बिन',
-    analytics: 'विश्लेषण',
-    agriculture: 'कृषि',
-    healthcare: 'स्वास्थ्य सेवा',
-    education: 'शिक्षा',
-    infrastructure: 'बुनियादी ढांचा',
-  },
-};
+const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
-const I18nContext = createContext<I18nContextValue | undefined>(undefined);
+interface I18nProviderProps {
+  children: ReactNode;
+}
 
-export function I18nProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>('en');
+export function I18nProvider({ children }: I18nProviderProps) {
+  const [language, setLanguageState] = useState<Language>(() => {
+    const savedLanguage = localStorage.getItem("language");
 
-  const t = (key: string) => translations[language][key] ?? key;
+    if (savedLanguage === "ta" || savedLanguage === "en") {
+      return savedLanguage;
+    }
+
+    return "en";
+  });
+
+  const setLanguage = (newLanguage: Language) => {
+    setLanguageState(newLanguage);
+    localStorage.setItem("language", newLanguage);
+  };
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
+  const value = useMemo<I18nContextType>(() => {
+    return {
+      language,
+      setLanguage,
+      t: (key: TranslationKey) => translations[language][key],
+    };
+  }, [language]);
 
   return (
-    <I18nContext.Provider value={{ language, setLanguage, t }}>
+    <I18nContext.Provider value={value}>
       {children}
     </I18nContext.Provider>
   );
 }
 
 export function useI18n() {
-  const ctx = useContext(I18nContext);
-  if (!ctx) {
-    throw new Error('useI18n must be used within I18nProvider');
+  const context = useContext(I18nContext);
+
+  if (!context) {
+    throw new Error("useI18n must be used inside I18nProvider");
   }
-  return ctx;
+
+  return context;
 }

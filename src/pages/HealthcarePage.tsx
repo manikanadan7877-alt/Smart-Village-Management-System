@@ -1,57 +1,98 @@
-import { HeartPulse, Users, Stethoscope, Pill } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ModuleHeader, FeatureGrid, ModuleCardBox, ModulePageWrapper, StatusRow } from '@/components/ModulePage';
+import {
+  HeartPulse, Stethoscope, Users, Syringe, Pill, Ambulance,
+  Activity, AlertTriangle, Brain,
+} from 'lucide-react';
+
+const FEATURES = [
+  { icon: Stethoscope, label: 'Doctors', value: '3', color: '#3b82f6' },
+  { icon: Users, label: 'Active Patients', value: '47', color: '#3b82f6' },
+  { icon: Syringe, label: 'Vaccinated', value: '1,156', color: '#22c55e' },
+  { icon: Pill, label: 'Medicines in Stock', value: '42', color: '#22c55e' },
+  { icon: Ambulance, label: 'Ambulance', value: 'Available', color: '#22c55e' },
+  { icon: AlertTriangle, label: 'Emergency Cases', value: '0', color: '#22c55e' },
+  { icon: HeartPulse, label: 'Health Camp', value: 'Monthly', color: '#06b6d4' },
+  { icon: Activity, label: 'OPD Today', value: '18', color: '#eab308' },
+];
 
 export function HealthcarePage() {
-  const stats = [
-    { label: 'Population', value: '3,240', icon: Users, color: 'blue' },
-    { label: 'Health Workers', value: '12', icon: Stethoscope, color: 'green' },
-    { label: 'Active Patients', value: '48', icon: HeartPulse, color: 'red' },
-    { label: 'Medicine Stock', value: '85%', icon: Pill, color: 'amber' },
-  ];
-
-  const colorMap: Record<string, string> = {
-    blue: 'bg-blue-50 text-blue-600',
-    green: 'bg-green-50 text-green-600',
-    red: 'bg-red-50 text-red-600',
-    amber: 'bg-amber-50 text-amber-600',
-  };
-
+  const navigate = useNavigate();
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Healthcare</h1>
-        <p className="mt-1 text-sm text-slate-500">Monitor healthcare services and resources</p>
-      </div>
+    <ModulePageWrapper>
+      <ModuleHeader title="Healthcare" subtitle="PHC, doctors, patients, vaccination, and disease monitoring" icon={HeartPulse} color="#ef4444" />
+      <FeatureGrid features={FEATURES} />
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {stats.map((stat) => (
-          <div key={stat.label} className="card">
-            <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${colorMap[stat.color]}`}>
-              <stat.icon size={20} />
-            </div>
-            <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
-            <p className="text-xs text-slate-500">{stat.label}</p>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <ModuleCardBox title="PHC Status" icon={Stethoscope} color="#3b82f6">
+          <div className="space-y-2.5">
+            <StatusRow label="General Ward" value="6/20 beds" status="good" />
+            <StatusRow label="Maternity Ward" value="2/8 beds" status="good" />
+            <StatusRow label="Emergency" value="Available" status="good" />
+            <StatusRow label="Lab Services" value="Operational" status="good" />
           </div>
-        ))}
+        </ModuleCardBox>
+
+        <ModuleCardBox title="Vaccination Progress" icon={Syringe} color="#22c55e">
+          <div className="space-y-3">
+            <div>
+              <div className="mb-1.5 flex justify-between text-sm">
+                <span className="font-medium text-slate-600">Children (0-5 yrs)</span>
+                <span className="font-bold text-slate-900">92%</span>
+              </div>
+              <div className="h-2.5 w-full rounded-full bg-slate-100">
+                <div className="h-2.5 rounded-full bg-green-500 transition-all" style={{ width: '92%' }} />
+              </div>
+            </div>
+            <div>
+              <div className="mb-1.5 flex justify-between text-sm">
+                <span className="font-medium text-slate-600">Pregnant Women</span>
+                <span className="font-bold text-slate-900">88%</span>
+              </div>
+              <div className="h-2.5 w-full rounded-full bg-slate-100">
+                <div className="h-2.5 rounded-full bg-green-500 transition-all" style={{ width: '88%' }} />
+              </div>
+            </div>
+            <div>
+              <div className="mb-1.5 flex justify-between text-sm">
+                <span className="font-medium text-slate-600">Elderly (60+)</span>
+                <span className="font-bold text-slate-900">76%</span>
+              </div>
+              <div className="h-2.5 w-full rounded-full bg-slate-100">
+                <div className="h-2.5 rounded-full bg-amber-500 transition-all" style={{ width: '76%' }} />
+              </div>
+            </div>
+          </div>
+        </ModuleCardBox>
       </div>
 
-      <div className="card">
-        <h2 className="mb-4 font-bold text-slate-900">Health Camps Schedule</h2>
-        <div className="space-y-3">
-          {[
-            { date: 'Aug 25', title: 'General Health Check-up', status: 'Scheduled' },
-            { date: 'Sep 02', title: 'Vaccination Drive', status: 'Scheduled' },
-            { date: 'Sep 10', title: 'Eye Check-up Camp', status: 'Planning' },
-          ].map((camp) => (
-            <div key={camp.title} className="flex items-center justify-between rounded-xl bg-slate-50 p-3">
-              <div>
-                <p className="text-sm font-medium text-slate-900">{camp.title}</p>
-                <p className="text-xs text-slate-500">{camp.date}</p>
-              </div>
-              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">{camp.status}</span>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <ModuleCardBox title="Medicine Stock" icon={Pill} color="#06b6d4">
+          <div className="space-y-2.5">
+            <StatusRow label="Paracetamol" value="In stock" status="good" />
+            <StatusRow label="Antibiotics" value="Low stock" status="moderate" />
+            <StatusRow label="ORS Sachets" value="In stock" status="good" />
+            <StatusRow label="Insulin" value="In stock" status="good" />
+          </div>
+        </ModuleCardBox>
+
+        <ModuleCardBox title="Disease Prediction" icon={Brain} color="#ef4444" actionLabel="View AI Analytics" onAction={() => navigate('/analytics')}>
+          <div className="space-y-3">
+            <div className="rounded-xl border border-slate-100 p-3">
+              <p className="text-sm font-semibold text-slate-700">Dengue Risk — Low</p>
+              <p className="mt-1 text-xs text-slate-500">No active cases. Fogging scheduled next week.</p>
             </div>
-          ))}
-        </div>
+            <div className="rounded-xl border border-slate-100 p-3">
+              <p className="text-sm font-semibold text-slate-700">Seasonal Flu — Moderate</p>
+              <p className="mt-1 text-xs text-slate-500">3 cases reported this week. Monitor for outbreak.</p>
+            </div>
+            <div className="rounded-xl border border-slate-100 p-3">
+              <p className="text-sm font-semibold text-slate-700">Water-borne Disease — Low Risk</p>
+              <p className="mt-1 text-xs text-slate-500">Water quality tests normal across all tanks.</p>
+            </div>
+          </div>
+        </ModuleCardBox>
       </div>
-    </div>
+    </ModulePageWrapper>
   );
 }

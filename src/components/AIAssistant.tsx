@@ -4,7 +4,6 @@ import {
   Bot, X, Send, Mic, Trash2, ArrowRight, Sparkles,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { useI18n } from '@/context/I18nContext';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -16,27 +15,28 @@ const QUICK_QUESTIONS = [
   'Village Status',
   'Water Status',
   'Agriculture Condition',
+  'Energy Status',
   "Today's Alerts",
   'Weather',
   'AI Predictions',
 ];
 
 const QUICK_MAP: Record<string, string> = {
-  'Village Status': 'What is the current village status?',
-  'Water Status': 'What is the current water status?',
-  'Agriculture Condition': 'What is the agriculture condition?',
-  "Today's Alerts": 'Are there any emergency alerts today?',
-  'Weather': 'What is the current weather?',
-  'AI Predictions': 'What are the AI predictions?',
+  'Village Status': 'village status sollu',
+  'Water Status': 'water tank status epdi irukku?',
+  'Agriculture Condition': 'agriculture condition sollu',
+  'Energy Status': 'electricity usage epdi irukku?',
+  "Today's Alerts": 'any emergency alerts?',
+  'Weather': 'current weather enna?',
+  'AI Predictions': 'AI predictions sollu',
 };
 
 export function AIAssistant({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
-  const { t, village } = useI18n();
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: t('ai.greeting'),
+      content: "Vanakkam! I'm your AI Village Assistant. Ask me about water, agriculture, energy, complaints, weather, healthcare, or village status. I support English, Tamil, and Tanglish.",
     },
   ]);
   const [input, setInput] = useState('');
@@ -75,7 +75,6 @@ export function AIAssistant({ onClose }: { onClose: () => void }) {
         },
         body: JSON.stringify({
           messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
-          village: village || undefined,
         }),
       });
 
@@ -83,13 +82,13 @@ export function AIAssistant({ onClose }: { onClose: () => void }) {
       const data = await response.json();
       setMessages((prev) => [...prev, {
         role: 'assistant',
-        content: data.reply || t('ai.unavailable'),
+        content: data.reply || 'AI Assistant is temporarily unavailable. Please try again.',
         module: data.module || null,
       }]);
     } catch {
       setMessages((prev) => [...prev, {
         role: 'assistant',
-        content: t('ai.unavailable'),
+        content: 'AI Assistant is temporarily unavailable. Please try again.',
         module: null,
       }]);
     } finally {
@@ -105,7 +104,7 @@ export function AIAssistant({ onClose }: { onClose: () => void }) {
   }
 
   function clearChat() {
-    setMessages([{ role: 'assistant', content: t('ai.clearChat') }]);
+    setMessages([{ role: 'assistant', content: "Chat cleared. How can I help you with your village today?" }]);
   }
 
   function toggleVoice() {
@@ -155,8 +154,8 @@ export function AIAssistant({ onClose }: { onClose: () => void }) {
               <Bot size={20} />
             </div>
             <div>
-              <p className="text-sm font-bold text-white">{t('ai.title')}</p>
-              <p className="text-[11px] text-green-400">{t('ai.online')} • EN / தமிழ் / Tanglish</p>
+              <p className="text-sm font-bold text-white">AI Village Assistant</p>
+              <p className="text-[11px] text-green-400">Online • EN / தமிழ் / Tanglish</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -185,7 +184,7 @@ export function AIAssistant({ onClose }: { onClose: () => void }) {
                     onClick={() => { navigate(msg.module!); onClose(); }}
                     className="mt-2 flex items-center gap-1.5 rounded-lg bg-green-500/15 px-3 py-1.5 text-xs font-medium text-green-400 hover:bg-green-500/25 transition-colors"
                   >
-                    {t('ai.openModule')} <ArrowRight size={12} />
+                    Open Module <ArrowRight size={12} />
                   </button>
                 )}
               </div>
@@ -241,7 +240,7 @@ export function AIAssistant({ onClose }: { onClose: () => void }) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask about water, crops, alerts..."
+              placeholder="Ask about water, crops, energy, alerts..."
               className="flex-1 bg-transparent text-sm text-slate-200 placeholder-slate-500 outline-none"
             />
             <button
