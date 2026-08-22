@@ -179,6 +179,28 @@ export async function updateProfile(id: string, updates: Partial<Pick<Profile, '
   if (error) throw error;
 }
 
+// ---- Module Metrics (admin-editable persisted data) ----
+
+export async function fetchModuleMetrics(module: string): Promise<Record<string, string>> {
+  const { data, error } = await supabase
+    .from('module_metrics')
+    .select('metric_key, metric_value')
+    .eq('module', module);
+  if (error) throw error;
+  const map: Record<string, string> = {};
+  (data ?? []).forEach((row: { metric_key: string; metric_value: string }) => {
+    map[row.metric_key] = row.metric_value;
+  });
+  return map;
+}
+
+export async function upsertModuleMetric(module: string, key: string, value: string): Promise<void> {
+  const { error } = await supabase
+    .from('module_metrics')
+    .upsert({ module, metric_key: key, metric_value: value }, { onConflict: 'module,metric_key' });
+  if (error) throw error;
+}
+
 // ---- Analytics helper ----
 
 export interface ComplaintStats {
