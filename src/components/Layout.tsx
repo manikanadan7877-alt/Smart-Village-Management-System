@@ -1,41 +1,41 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useI18n } from '@/context/I18nContext';
 import { AIAssistant } from '@/components/AIAssistant';
 import type { LucideIcon } from 'lucide-react';
 import {
   LayoutDashboard, Map, ClipboardList, Droplets, Trash2, BarChart3, User,
   LogOut, Menu, X, Trees, Bell, Search, Cloud, Settings,
-  Sprout, Zap, HeartPulse, GraduationCap, Wrench, Wallet, FileText,
+  Sprout, HeartPulse, GraduationCap, Wrench, FileText,
   Bot, Mic, MessageSquare,
 } from 'lucide-react';
 import { useState, useEffect, type ReactNode } from 'react';
 
 interface NavItem {
   to: string;
-  label: string;
+  labelKey: string;
   icon: LucideIcon;
   adminOnly?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/map', label: 'Digital Twin Map', icon: Map },
-  { to: '/agriculture', label: 'Agriculture', icon: Sprout },
-  { to: '/water-tanks', label: 'Water Management', icon: Droplets, adminOnly: true },
-  { to: '/energy', label: 'Energy Management', icon: Zap },
-  { to: '/healthcare', label: 'Healthcare', icon: HeartPulse },
-  { to: '/education', label: 'Education', icon: GraduationCap },
-  { to: '/garbage-bins', label: 'Waste Management', icon: Trash2, adminOnly: true },
-  { to: '/infrastructure', label: 'Infrastructure', icon: Wrench },
-  { to: '/complaints', label: 'Citizen Services', icon: ClipboardList },
-  { to: '/analytics', label: 'AI Analytics', icon: BarChart3, adminOnly: true },
-  { to: '/reports', label: 'Reports', icon: FileText },
-  { to: '/budget', label: 'Budget & Finance', icon: Wallet },
-  { to: '/settings', label: 'Settings', icon: Settings },
+  { to: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+  { to: '/map', labelKey: 'nav.map', icon: Map },
+  { to: '/agriculture', labelKey: 'nav.agriculture', icon: Sprout },
+  { to: '/water-tanks', labelKey: 'nav.water', icon: Droplets, adminOnly: true },
+  { to: '/healthcare', labelKey: 'nav.healthcare', icon: HeartPulse },
+  { to: '/education', labelKey: 'nav.education', icon: GraduationCap },
+  { to: '/garbage-bins', labelKey: 'nav.waste', icon: Trash2, adminOnly: true },
+  { to: '/infrastructure', labelKey: 'nav.infrastructure', icon: Wrench },
+  { to: '/complaints', labelKey: 'nav.citizen', icon: ClipboardList },
+  { to: '/analytics', labelKey: 'nav.analytics', icon: BarChart3, adminOnly: true },
+  { to: '/reports', labelKey: 'nav.reports', icon: FileText },
+  { to: '/settings', labelKey: 'nav.settings', icon: Settings },
 ];
 
 export function Layout({ children }: { children: ReactNode }) {
   const { profile, signOut } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
@@ -44,14 +44,14 @@ export function Layout({ children }: { children: ReactNode }) {
 
   async function handleSignOut() {
     await signOut();
-    navigate('/login');
+    navigate('/login', { replace: true });
   }
 
   return (
     <div className="min-h-screen cmd-bg cmd-grid-pattern">
       {/* Sidebar - Desktop */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-white/[0.06] bg-[#080d1a]/95 backdrop-blur-xl lg:flex">
-        <SidebarContent items={items} profile={profile} onSignOut={handleSignOut} onOpenAI={() => setAiOpen(true)} />
+        <SidebarContent items={items} profile={profile} onSignOut={handleSignOut} onOpenAI={() => setAiOpen(true)} t={t} />
       </aside>
 
       {/* Sidebar - Mobile */}
@@ -68,6 +68,7 @@ export function Layout({ children }: { children: ReactNode }) {
               onSignOut={handleSignOut}
               onNavigate={() => setMobileOpen(false)}
               onOpenAI={() => setAiOpen(true)}
+              t={t}
             />
           </aside>
         </>
@@ -76,7 +77,7 @@ export function Layout({ children }: { children: ReactNode }) {
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <TopBar profile={profile} onMobileMenu={() => setMobileOpen(true)} />
+        <TopBar profile={profile} onMobileMenu={() => setMobileOpen(true)} onSignOut={handleSignOut} t={t} />
 
         {/* Page content */}
         <main className="min-h-[calc(100vh-4rem)] rounded-tl-2xl bg-slate-50 p-4 lg:p-6">{children}</main>
@@ -88,7 +89,9 @@ export function Layout({ children }: { children: ReactNode }) {
   );
 }
 
-function TopBar({ profile, onMobileMenu }: { profile: { full_name: string; role: string } | null; onMobileMenu: () => void }) {
+type TFunc = (key: string) => string;
+
+function TopBar({ profile, onMobileMenu, onSignOut, t }: { profile: { full_name: string; role: string } | null; onMobileMenu: () => void; onSignOut: () => void; t: TFunc }) {
   const [now, setNow] = useState(new Date());
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
@@ -116,8 +119,8 @@ function TopBar({ profile, onMobileMenu }: { profile: { full_name: string; role:
             <Trees size={20} />
           </div>
           <div className="hidden sm:block">
-            <p className="text-sm font-bold text-white leading-tight">Digital Twin Village</p>
-            <p className="text-[11px] text-slate-400 leading-tight">AI Based Smart Village Management</p>
+            <p className="text-sm font-bold text-white leading-tight">{t('header.title')}</p>
+            <p className="text-[11px] text-slate-400 leading-tight">{t('header.subtitle')}</p>
           </div>
         </div>
       </div>
@@ -127,7 +130,7 @@ function TopBar({ profile, onMobileMenu }: { profile: { full_name: string; role:
         <Search size={16} className="text-slate-500" />
         <input
           type="text"
-          placeholder="Search for locations, assets, people, etc..."
+          placeholder={t('header.searchPlaceholder')}
           className="flex-1 bg-transparent text-sm text-slate-200 placeholder-slate-500 outline-none"
         />
         <kbd className="hidden rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-400 lg:block">Ctrl K</kbd>
@@ -139,7 +142,7 @@ function TopBar({ profile, onMobileMenu }: { profile: { full_name: string; role:
           <Cloud size={16} className="text-cyan-400" />
           <div className="text-xs">
             <span className="font-semibold text-white">28°C</span>
-            <span className="text-slate-400 ml-1">Partly Cloudy</span>
+            <span className="text-slate-400 ml-1">{t('dash.partlyCloudy')}</span>
           </div>
         </div>
         <div className="hidden items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 xl:flex">
@@ -179,20 +182,20 @@ function TopBar({ profile, onMobileMenu }: { profile: { full_name: string; role:
                   onClick={() => { setShowProfile(false); navigate('/profile'); }}
                   className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-white/5"
                 >
-                  <User size={16} /> My Profile
+                  <User size={16} /> {t('header.myProfile')}
                 </button>
                 <button
                   onClick={() => { setShowProfile(false); navigate('/settings'); }}
                   className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-white/5"
                 >
-                  <Settings size={16} /> Settings
+                  <Settings size={16} /> {t('header.settings')}
                 </button>
                 <div className="my-1 border-t border-white/[0.06]" />
                 <button
-                  onClick={() => { setShowProfile(false); navigate('/login'); }}
+                  onClick={() => { setShowProfile(false); onSignOut(); }}
                   className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
                 >
-                  <LogOut size={16} /> Sign Out
+                  <LogOut size={16} /> {t('header.signOut')}
                 </button>
               </div>
             </>
@@ -209,12 +212,14 @@ function SidebarContent({
   onSignOut,
   onNavigate,
   onOpenAI,
+  t,
 }: {
   items: NavItem[];
   profile: { full_name: string; role: string } | null;
   onSignOut: () => void;
   onNavigate?: () => void;
   onOpenAI: () => void;
+  t: TFunc;
 }) {
   const navigate = useNavigate();
 
@@ -258,7 +263,7 @@ function SidebarContent({
             }
           >
             <item.icon size={18} className="flex-shrink-0" />
-            {item.label}
+            {t(item.labelKey)}
           </NavLink>
         ))}
       </nav>
@@ -271,13 +276,13 @@ function SidebarContent({
               <Bot size={18} />
             </div>
             <div>
-              <p className="text-xs font-bold text-white leading-tight">AI Village Assistant</p>
-              <p className="text-[10px] text-slate-400 leading-tight">How can I help you today?</p>
+              <p className="text-xs font-bold text-white leading-tight">{t('ai.title')}</p>
+              <p className="text-[10px] text-slate-400 leading-tight">{t('ai.greeting')}</p>
             </div>
           </div>
           <div className="flex items-center justify-between gap-2">
             <span className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-white/[0.06] py-1.5 text-[11px] font-medium text-slate-300">
-              <Mic size={13} className="text-green-400" /> Open Chat
+              <Mic size={13} className="text-green-400" /> {t('ai.openChat')}
             </span>
             <span className="flex items-center justify-center rounded-lg bg-white/[0.06] px-2.5 py-1.5 text-[10px] font-medium text-slate-300">
               EN / தம
@@ -302,7 +307,7 @@ function SidebarContent({
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all"
         >
           <LogOut size={18} />
-          Sign Out
+          {t('header.signOut')}
         </button>
       </div>
     </>

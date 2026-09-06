@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useI18n } from '@/context/I18nContext';
 import { fetchWaterTanks, createWaterTank, updateWaterTank, deleteWaterTank } from '@/lib/api';
 import { ProgressBar, getWaterLevelColor } from '@/components/ProgressBar';
 import { Modal } from '@/components/Modal';
 import { VillageMap } from '@/components/VillageMap';
 import type { WaterTank } from '@/lib/types';
 import { VILLAGE_CENTER } from '@/lib/constants';
-import { Droplets, Plus, CreditCard as Edit3, Trash2, AlertTriangle, Loader2, MapPin } from 'lucide-react';
+import { Droplets, Plus, CreditCard as Edit3, Trash2, AlertTriangle, Loader2, MapPin, CheckCircle } from 'lucide-react';
 
 export function WaterTanksPage() {
   const { profile } = useAuth();
+  const { t } = useI18n();
   const [tanks, setTanks] = useState<WaterTank[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -20,6 +22,7 @@ export function WaterTanksPage() {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const isAdmin = profile?.role === 'admin';
 
@@ -66,25 +69,27 @@ export function WaterTanksPage() {
     try {
       if (editing) {
         await updateWaterTank(editing.id, form);
+        setToast(t('common.updatedSuccessfully'));
       } else {
         await createWaterTank(form);
       }
       setModalOpen(false);
       await load();
+      setTimeout(() => setToast(null), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save');
+      setError(err instanceof Error ? err.message : t('common.failedToSave'));
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Are you sure you want to delete this water tank?')) return;
+    if (!confirm(t('common.confirmDelete'))) return;
     try {
       await deleteWaterTank(id);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete');
+      setError(err instanceof Error ? err.message : t('common.failedToSave'));
     }
   }
 
@@ -93,6 +98,8 @@ export function WaterTanksPage() {
     try {
       await updateWaterTank(tank.id, { current_level_liters: newLevel });
       await load();
+      setToast(t('common.updatedSuccessfully'));
+      setTimeout(() => setToast(null), 3000);
     } catch (err) {
       console.error('Quick update error:', err);
     }
@@ -108,14 +115,19 @@ export function WaterTanksPage() {
 
   return (
     <div className="animate-fade-in space-y-6">
+      {toast && (
+        <div className="fixed top-20 right-4 z-50 flex items-center gap-2 rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700 shadow-lg ring-1 ring-green-200">
+          <CheckCircle size={18} /> {toast}
+        </div>
+      )}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Water Tanks</h1>
-          <p className="text-sm text-slate-500">Monitor and manage village water supply</p>
+          <h1 className="text-2xl font-bold text-slate-900">{t('water.title')}</h1>
+          <p className="text-sm text-slate-500">{t('water.subtitle')}</p>
         </div>
         {isAdmin && (
           <button onClick={openAdd} className="btn-primary">
-            <Plus size={18} /> Add Water Tank
+            <Plus size={18} /> {t('water.addTank')}
           </button>
         )}
       </div>
@@ -123,9 +135,9 @@ export function WaterTanksPage() {
       {tanks.length === 0 ? (
         <div className="card flex flex-col items-center justify-center py-16">
           <Droplets size={48} className="mb-3 text-slate-300" />
-          <h3 className="text-lg font-bold text-slate-700">No water tanks registered</h3>
+          <h3 className="text-lg font-bold text-slate-700">{t('water.noTanks')}</h3>
           <p className="mt-1 text-sm text-slate-400">
-            {isAdmin ? 'Add a water tank to start monitoring' : 'Water tank data will appear here'}
+            {isAdmin ? t('water.addStart') : t('water.dataAppear')}
           </p>
         </div>
       ) : (
@@ -152,7 +164,7 @@ export function WaterTanksPage() {
                   </div>
                   {isLow && (
                     <span className="badge bg-red-50 text-red-600">
-                      <AlertTriangle size={12} /> Low
+                      <AlertTriangle size={12} /> {t('water.low')}
                     </span>
                   )}
                 </div>
@@ -161,7 +173,7 @@ export function WaterTanksPage() {
                   <div>
                     <p className="text-3xl font-bold text-slate-900">{pct.toFixed(0)}<span className="text-lg">%</span></p>
                     <p className="text-xs text-slate-500">
-                      {tank.current_level_liters.toLocaleString()} / {tank.capacity_liters.toLocaleString()} liters
+                      {tank.current_level_liters.toLocaleString()} / {tank.capacity_liters.toLocaleString()} {t('water.liters')}
                     </p>
                   </div>
                 </div>
@@ -197,11 +209,11 @@ export function WaterTanksPage() {
       )}
 
       {/* Add/Edit Modal */}
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Water Tank' : 'Add Water Tank'} size="lg">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? t('water.editTank') : t('water.addTank')} size="lg">
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="label">Tank Name</label>
+              <label className="label">{t('water.tankName')}</label>
               <input
                 type="text"
                 value={form.name}
@@ -211,7 +223,7 @@ export function WaterTanksPage() {
               />
             </div>
             <div>
-              <label className="label">Location Label</label>
+              <label className="label">{t('water.locationLabel')}</label>
               <input
                 type="text"
                 value={form.location_label}
@@ -223,7 +235,7 @@ export function WaterTanksPage() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="label">Capacity (liters)</label>
+              <label className="label">{t('water.capacity')}</label>
               <input
                 type="number"
                 value={form.capacity_liters}
@@ -232,7 +244,7 @@ export function WaterTanksPage() {
               />
             </div>
             <div>
-              <label className="label">Current Level (liters)</label>
+              <label className="label">{t('water.currentLevel')}</label>
               <input
                 type="number"
                 value={form.current_level_liters}
@@ -242,7 +254,7 @@ export function WaterTanksPage() {
             </div>
           </div>
           <div>
-            <label className="label">Click map to set location</label>
+            <label className="label">{t('water.clickMap')}</label>
             <VillageMap
               selectable
               selectedLocation={{ lat: form.latitude, lng: form.longitude }}
@@ -252,10 +264,10 @@ export function WaterTanksPage() {
           </div>
           {error && <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
           <div className="flex justify-end gap-3">
-            <button onClick={() => setModalOpen(false)} className="btn-secondary">Cancel</button>
+            <button onClick={() => setModalOpen(false)} className="btn-secondary">{t('common.cancel')}</button>
             <button onClick={handleSave} disabled={saving || !form.name} className="btn-primary">
               {saving ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
-              {editing ? 'Save Changes' : 'Add Tank'}
+              {editing ? t('common.saveChanges') : t('water.addTank')}
             </button>
           </div>
         </div>

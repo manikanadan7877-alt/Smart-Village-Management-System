@@ -13,12 +13,10 @@ import { GarbageBinsPage } from '@/pages/GarbageBinsPage';
 import { AnalyticsPage } from '@/pages/AnalyticsPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { AgriculturePage } from '@/pages/AgriculturePage';
-import { EnergyPage } from '@/pages/EnergyPage';
 import { HealthcarePage } from '@/pages/HealthcarePage';
 import { EducationPage } from '@/pages/EducationPage';
 import { InfrastructurePage } from '@/pages/InfrastructurePage';
 import { ReportsPage } from '@/pages/ReportsPage';
-import { BudgetPage } from '@/pages/BudgetPage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import type { ReactNode } from 'react';
 
@@ -81,12 +79,10 @@ function AppRoutes() {
 
       {/* Module routes */}
       <Route path="/agriculture" element={<ProtectedRoute><AgriculturePage /></ProtectedRoute>} />
-      <Route path="/energy" element={<ProtectedRoute><EnergyPage /></ProtectedRoute>} />
       <Route path="/healthcare" element={<ProtectedRoute><HealthcarePage /></ProtectedRoute>} />
       <Route path="/education" element={<ProtectedRoute><EducationPage /></ProtectedRoute>} />
       <Route path="/infrastructure" element={<ProtectedRoute><InfrastructurePage /></ProtectedRoute>} />
       <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
-      <Route path="/budget" element={<ProtectedRoute><BudgetPage /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />

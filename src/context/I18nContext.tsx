@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { translations, type Language } from "./i18n";
+import { translations, type Language } from "@/lib/i18n";
 
 type TranslationKey = keyof typeof translations.en;
 
@@ -47,7 +47,7 @@ export function I18nProvider({ children }: I18nProviderProps) {
     return {
       language,
       setLanguage,
-      t: (key: TranslationKey) => translations[language][key],
+      t: (key: TranslationKey) => translations[language][key] ?? translations.en[key] ?? key,
     };
   }, [language]);
 

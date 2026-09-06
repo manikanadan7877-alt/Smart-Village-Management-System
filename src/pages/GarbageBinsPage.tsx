@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useI18n } from '@/context/I18nContext';
 import { fetchGarbageBins, createGarbageBin, updateGarbageBin, deleteGarbageBin } from '@/lib/api';
 import { ProgressBar, getFillLevelColor } from '@/components/ProgressBar';
 import { Modal } from '@/components/Modal';
@@ -10,6 +11,7 @@ import { Trash2, Plus, CreditCard as Edit3, AlertTriangle, Loader2, MapPin, Chec
 
 export function GarbageBinsPage() {
   const { profile } = useAuth();
+  const { t } = useI18n();
   const [bins, setBins] = useState<GarbageBin[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -20,6 +22,7 @@ export function GarbageBinsPage() {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const isAdmin = profile?.role === 'admin';
 
@@ -66,25 +69,27 @@ export function GarbageBinsPage() {
     try {
       if (editing) {
         await updateGarbageBin(editing.id, form);
+        setToast(t('common.updatedSuccessfully'));
       } else {
         await createGarbageBin(form);
       }
       setModalOpen(false);
       await load();
+      setTimeout(() => setToast(null), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save');
+      setError(err instanceof Error ? err.message : t('common.failedToSave'));
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Are you sure you want to delete this garbage bin?')) return;
+    if (!confirm(t('common.confirmDelete'))) return;
     try {
       await deleteGarbageBin(id);
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete');
+      setError(err instanceof Error ? err.message : t('common.failedToSave'));
     }
   }
 
@@ -92,6 +97,8 @@ export function GarbageBinsPage() {
     try {
       await updateGarbageBin(bin.id, { current_level_liters: 0 });
       await load();
+      setToast(t('common.updatedSuccessfully'));
+      setTimeout(() => setToast(null), 3000);
     } catch (err) {
       console.error('Mark collected error:', err);
     }
@@ -117,14 +124,19 @@ export function GarbageBinsPage() {
 
   return (
     <div className="animate-fade-in space-y-6">
+      {toast && (
+        <div className="fixed top-20 right-4 z-50 flex items-center gap-2 rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700 shadow-lg ring-1 ring-green-200">
+          <CheckCircle size={18} /> {toast}
+        </div>
+      )}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Garbage Bins</h1>
-          <p className="text-sm text-slate-500">Monitor fill levels and schedule collections</p>
+          <h1 className="text-2xl font-bold text-slate-900">{t('waste.title')}</h1>
+          <p className="text-sm text-slate-500">{t('waste.subtitle')}</p>
         </div>
         {isAdmin && (
           <button onClick={openAdd} className="btn-primary">
-            <Plus size={18} /> Add Garbage Bin
+            <Plus size={18} /> {t('waste.addBin')}
           </button>
         )}
       </div>
@@ -132,9 +144,9 @@ export function GarbageBinsPage() {
       {bins.length === 0 ? (
         <div className="card flex flex-col items-center justify-center py-16">
           <Trash2 size={48} className="mb-3 text-slate-300" />
-          <h3 className="text-lg font-bold text-slate-700">No garbage bins registered</h3>
+          <h3 className="text-lg font-bold text-slate-700">{t('waste.noBins')}</h3>
           <p className="mt-1 text-sm text-slate-400">
-            {isAdmin ? 'Add a garbage bin to start monitoring' : 'Garbage bin data will appear here'}
+            {isAdmin ? t('waste.addStart') : t('waste.dataAppear')}
           </p>
         </div>
       ) : (
@@ -161,15 +173,15 @@ export function GarbageBinsPage() {
                   </div>
                   {isFull ? (
                     <span className="badge bg-red-50 text-red-600">
-                      <AlertTriangle size={12} /> Full
+                      <AlertTriangle size={12} /> {t('waste.full')}
                     </span>
                   ) : pct >= 60 ? (
                     <span className="badge bg-amber-50 text-amber-600">
-                      <AlertTriangle size={12} /> Filling
+                      <AlertTriangle size={12} /> {t('waste.filling')}
                     </span>
                   ) : (
                     <span className="badge bg-green-50 text-green-600">
-                      <CheckCircle size={12} /> OK
+                      <CheckCircle size={12} /> {t('waste.ok')}
                     </span>
                   )}
                 </div>
@@ -177,7 +189,7 @@ export function GarbageBinsPage() {
                 <div className="mb-2">
                   <p className="text-3xl font-bold text-slate-900">{pct.toFixed(0)}<span className="text-lg">%</span></p>
                   <p className="text-xs text-slate-500">
-                    {bin.current_level_liters} / {bin.capacity_liters} liters
+                    {bin.current_level_liters} / {bin.capacity_liters} {t('water.liters')}
                   </p>
                 </div>
 
@@ -221,11 +233,11 @@ export function GarbageBinsPage() {
       )}
 
       {/* Add/Edit Modal */}
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? 'Edit Garbage Bin' : 'Add Garbage Bin'} size="lg">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? t('waste.editBin') : t('waste.addBin')} size="lg">
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="label">Bin Name</label>
+              <label className="label">{t('waste.binName')}</label>
               <input
                 type="text"
                 value={form.name}
@@ -235,7 +247,7 @@ export function GarbageBinsPage() {
               />
             </div>
             <div>
-              <label className="label">Location Label</label>
+              <label className="label">{t('water.locationLabel')}</label>
               <input
                 type="text"
                 value={form.location_label}
@@ -247,7 +259,7 @@ export function GarbageBinsPage() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="label">Capacity (liters)</label>
+              <label className="label">{t('water.capacity')}</label>
               <input
                 type="number"
                 value={form.capacity_liters}
@@ -256,7 +268,7 @@ export function GarbageBinsPage() {
               />
             </div>
             <div>
-              <label className="label">Current Fill (liters)</label>
+              <label className="label">{t('waste.currentFill')}</label>
               <input
                 type="number"
                 value={form.current_level_liters}
@@ -266,7 +278,7 @@ export function GarbageBinsPage() {
             </div>
           </div>
           <div>
-            <label className="label">Click map to set location</label>
+            <label className="label">{t('water.clickMap')}</label>
             <VillageMap
               selectable
               selectedLocation={{ lat: form.latitude, lng: form.longitude }}
@@ -276,10 +288,10 @@ export function GarbageBinsPage() {
           </div>
           {error && <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
           <div className="flex justify-end gap-3">
-            <button onClick={() => setModalOpen(false)} className="btn-secondary">Cancel</button>
+            <button onClick={() => setModalOpen(false)} className="btn-secondary">{t('common.cancel')}</button>
             <button onClick={handleSave} disabled={saving || !form.name} className="btn-primary">
               {saving ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
-              {editing ? 'Save Changes' : 'Add Bin'}
+              {editing ? t('common.saveChanges') : t('waste.addBin')}
             </button>
           </div>
         </div>

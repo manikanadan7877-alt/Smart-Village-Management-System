@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useI18n } from '@/context/I18nContext';
 import { fetchComplaints, fetchWaterTanks, fetchGarbageBins } from '@/lib/api';
 import { VillageMap } from '@/components/VillageMap';
 import { AIAssistant } from '@/components/AIAssistant';
@@ -14,6 +15,7 @@ import {
 
 export function DashboardPage() {
   const { profile } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [waterTanks, setWaterTanks] = useState<WaterTank[]>([]);
@@ -80,26 +82,26 @@ export function DashboardPage() {
   lowWaterTanks.forEach((t) => {
     const pct = (t.current_level_liters / t.capacity_liters) * 100;
     alerts.push({
-      type: 'water', title: `Water level low: ${t.name}`, subtitle: `${pct.toFixed(0)}% remaining`,
+      type: 'water', title: `${t('dash.waterShortage')}: ${t.name}`, subtitle: `${pct.toFixed(0)}%`,
       severity: 'high', route: '/water-tanks',
     });
   });
   fullBins.forEach((b) => {
     const pct = (b.current_level_liters / b.capacity_liters) * 100;
     alerts.push({
-      type: 'waste', title: `Waste bin almost full: ${b.name}`, subtitle: `${pct.toFixed(0)}% filled`,
+      type: 'waste', title: `${t('waste.full')}: ${b.name}`, subtitle: `${pct.toFixed(0)}%`,
       severity: 'high', route: '/garbage-bins',
     });
   });
   complaints.filter((c) => c.priority === 'high' && c.status !== 'resolved').slice(0, 2).forEach((c) => {
     alerts.push({
-      type: 'complaint', title: c.title, subtitle: `High priority • ${c.location_label}`,
+      type: 'complaint', title: c.title, subtitle: c.location_label,
       severity: 'high', route: `/complaints/${c.id}`,
     });
   });
   if (alerts.length < 3) {
     alerts.push({
-      type: 'weather', title: 'Temperature normal', subtitle: '28°C — within seasonal range',
+      type: 'weather', title: '28°C', subtitle: t('dash.partlyCloudy'),
       severity: 'low', route: '/dashboard',
     });
   }
@@ -119,33 +121,33 @@ export function DashboardPage() {
       {/* Welcome section */}
       <div className="cmd-fade-up" style={{ animationDelay: '0s' }}>
         <h1 className="text-2xl font-bold text-white">
-          Welcome back, {firstName}!
+          {t('dash.welcome')}, {firstName}!
         </h1>
-        <p className="text-sm text-slate-400 mt-1">Here's the overview of your village today.</p>
+        <p className="text-sm text-slate-400 mt-1">{t('dash.overview')}</p>
       </div>
 
       {/* Top status cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6 cmd-fade-up" style={{ animationDelay: '0.05s' }}>
-        <StatusCard label="Population" value="1,248" icon={Users} color="#3b82f6" subtitle="Registered residents" onClick={() => navigate('/dashboard')} />
+        <StatusCard label={t('dash.population')} value="1,248" icon={Users} color="#3b82f6" subtitle={t('dash.registered')} onClick={() => navigate('/dashboard')} />
         <StatusCard
-          label="Water Status"
-          value={avgWaterPct >= 60 ? 'Good' : avgWaterPct >= 30 ? 'Moderate' : 'Critical'}
+          label={t('dash.waterStatus')}
+          value={avgWaterPct >= 60 ? t('dash.good') : avgWaterPct >= 30 ? t('dash.fair') : t('dash.needsAttention')}
           icon={Droplets}
           color={avgWaterPct >= 60 ? '#22c55e' : avgWaterPct >= 30 ? '#f59e0b' : '#ef4444'}
-          subtitle={`${waterTanks.length} tanks • avg ${avgWaterPct}%`}
+          subtitle={`${waterTanks.length} ${t('dash.tanks')} • ${avgWaterPct}%`}
           onClick={() => navigate('/water-tanks')}
         />
-        <StatusCard label="Energy Status" value="Moderate" icon={Zap} color="#eab308" subtitle="Consumption normal" onClick={() => navigate('/energy')} />
-        <StatusCard label="Agriculture Status" value="Good" icon={Sprout} color="#22c55e" subtitle="Crops healthy" onClick={() => navigate('/agriculture')} />
+        <StatusCard label={t('dash.energyStatus')} value={t('dash.normal')} icon={Zap} color="#eab308" subtitle={t('dash.consumption')} onClick={() => navigate('/dashboard')} />
+        <StatusCard label={t('dash.agriStatus')} value={t('dash.good')} icon={Sprout} color="#22c55e" subtitle={t('dash.cropsHealthy')} onClick={() => navigate('/agriculture')} />
         <StatusCard
-          label="Village Health Score"
+          label={t('dash.healthScore')}
           value={`${villageHealthScore} / 100`}
           icon={HeartPulse}
           color={villageHealthScore >= 75 ? '#22c55e' : villageHealthScore >= 50 ? '#f59e0b' : '#ef4444'}
-          subtitle={villageHealthScore >= 75 ? 'Excellent' : villageHealthScore >= 50 ? 'Fair' : 'Needs attention'}
+          subtitle={villageHealthScore >= 75 ? t('dash.excellent') : villageHealthScore >= 50 ? t('dash.fair') : t('dash.needsAttention')}
           onClick={() => navigate('/analytics')}
         />
-        <StatusCard label="Current Weather" value="28°C" icon={Cloud} color="#06b6d4" subtitle="Partly Cloudy" onClick={() => navigate('/dashboard')} />
+        <StatusCard label={t('dash.weather')} value="28°C" icon={Cloud} color="#06b6d4" subtitle={t('dash.partlyCloudy')} onClick={() => navigate('/dashboard')} />
       </div>
 
       {/* Main map + side panels */}
@@ -155,21 +157,21 @@ export function DashboardPage() {
           <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
             <div className="flex items-center gap-2">
               <MapPin size={18} className="text-green-400" />
-              <h3 className="font-bold text-white">Digital Twin Map</h3>
-              <span className="rounded bg-green-500/15 px-2 py-0.5 text-[10px] font-semibold text-green-400">LIVE</span>
+              <h3 className="font-bold text-white">{t('dash.digitalTwin')}</h3>
+              <span className="rounded bg-green-500/15 px-2 py-0.5 text-[10px] font-semibold text-green-400">{t('dash.live')}</span>
             </div>
             <div className="flex items-center gap-1 rounded-lg bg-white/[0.04] p-0.5">
               <button
                 onClick={() => setMapMode('2d')}
                 className={`flex items-center gap-1 rounded-md px-3 py-1 text-xs font-medium transition-all ${mapMode === '2d' ? 'bg-green-500/20 text-green-400' : 'text-slate-400 hover:text-slate-200'}`}
               >
-                <Layers size={13} /> 2D Map
+                <Layers size={13} /> {t('dash.2dMap')}
               </button>
               <button
                 onClick={() => setMapMode('3d')}
                 className={`flex items-center gap-1 rounded-md px-3 py-1 text-xs font-medium transition-all ${mapMode === '3d' ? 'bg-green-500/20 text-green-400' : 'text-slate-400 hover:text-slate-200'}`}
               >
-                <Eye size={13} /> 3D Twin
+                <Eye size={13} /> {t('dash.3dTwin')}
               </button>
             </div>
           </div>
@@ -183,15 +185,15 @@ export function DashboardPage() {
             />
             {mapMode === '3d' && (
               <div className="pointer-events-none absolute bottom-3 left-3 rounded-lg bg-black/60 px-3 py-1.5 text-[11px] text-slate-300 backdrop-blur-sm">
-                3D view enabled — drag to rotate the village model
+                3D view enabled
               </div>
             )}
             {/* Map legend */}
             <div className="pointer-events-none absolute top-3 right-3 cmd-glass px-3 py-2 text-[10px]">
               <div className="flex flex-col gap-1.5">
-                <LegendDot color="#22c55e" label="Water Tanks" />
-                <LegendDot color="#f97316" label="Waste Bins" />
-                <LegendDot color="#ef4444" label="Complaints" />
+                <LegendDot color="#22c55e" label={t('dash.waterTanks')} />
+                <LegendDot color="#f97316" label={t('nav.waste')} />
+                <LegendDot color="#ef4444" label={t('nav.citizen')} />
               </div>
             </div>
           </div>
@@ -204,13 +206,13 @@ export function DashboardPage() {
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <AlertTriangle size={16} className="text-amber-400" />
-                <h4 className="text-sm font-bold text-white">Important Alerts</h4>
+                <h4 className="text-sm font-bold text-white">{t('dash.importantAlerts')}</h4>
               </div>
               <button
                 onClick={() => navigate(isAdmin ? '/garbage-bins' : '/complaints')}
                 className="text-[11px] font-medium text-green-400 hover:text-green-300"
               >
-                View All
+                {t('dash.viewAll')}
               </button>
             </div>
             <div className="cmd-scrollbar max-h-[180px] space-y-2 overflow-y-auto pr-1">
@@ -234,14 +236,14 @@ export function DashboardPage() {
 
           {/* Quick Actions */}
           <div className="cmd-glass p-4">
-            <h4 className="mb-3 text-sm font-bold text-white">Quick Actions</h4>
+            <h4 className="mb-3 text-sm font-bold text-white">{t('dash.quickActions')}</h4>
             <div className="grid grid-cols-2 gap-2">
-              <QuickBtn icon={Plus} label="Add Asset" onClick={() => navigate('/water-tanks')} />
-              <QuickBtn icon={Send} label="Send Alert" onClick={() => navigate('/complaints/new')} />
-              <QuickBtn icon={ClipboardList} label="New Complaint" onClick={() => navigate('/complaints/new')} />
-              <QuickBtn icon={Droplets} label="Water Request" onClick={() => navigate('/water-tanks')} />
-              <QuickBtn icon={FileText} label="View Reports" onClick={() => navigate('/reports')} />
-              <QuickBtn icon={Bot} label="AI Assistant" onClick={() => setAiOpen(true)} />
+              <QuickBtn icon={Plus} label={t('dash.addAsset')} onClick={() => navigate('/water-tanks')} />
+              <QuickBtn icon={Send} label={t('dash.sendAlert')} onClick={() => navigate('/complaints/new')} />
+              <QuickBtn icon={ClipboardList} label={t('dash.newComplaint')} onClick={() => navigate('/complaints/new')} />
+              <QuickBtn icon={Droplets} label={t('dash.waterRequest')} onClick={() => navigate('/water-tanks')} />
+              <QuickBtn icon={FileText} label={t('dash.viewReports')} onClick={() => navigate('/reports')} />
+              <QuickBtn icon={Bot} label={t('dash.aiAssistant')} onClick={() => setAiOpen(true)} />
             </div>
           </div>
         </div>
@@ -255,20 +257,20 @@ export function DashboardPage() {
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sparkles size={16} className="text-purple-400" />
-              <h4 className="text-sm font-bold text-white">AI Prediction Summary</h4>
+              <h4 className="text-sm font-bold text-white">{t('dash.aiPrediction')}</h4>
             </div>
             <button
               onClick={() => navigate('/analytics')}
               className="text-[11px] font-medium text-green-400 hover:text-green-300"
             >
-              View All
+              {t('dash.viewAll')}
             </button>
           </div>
           <div className="space-y-2.5">
-            <PredictionRow label="Water Shortage" value="Low Risk" color="#22c55e" />
-            <PredictionRow label="Crop Yield" value="High Yield" color="#22c55e" />
-            <PredictionRow label="Power Demand" value="Normal" color="#3b82f6" />
-            <PredictionRow label="Disease Outbreak" value="Low Risk" color="#22c55e" />
+            <PredictionRow label={t('dash.waterShortage')} value={t('dash.lowRisk')} color="#22c55e" />
+            <PredictionRow label={t('dash.cropYield')} value={t('dash.highYield')} color="#22c55e" />
+            <PredictionRow label={t('dash.powerDemand')} value={t('dash.normal')} color="#3b82f6" />
+            <PredictionRow label={t('dash.diseaseRisk')} value={t('dash.lowRisk')} color="#22c55e" />
           </div>
         </div>
 
@@ -276,16 +278,16 @@ export function DashboardPage() {
         <div className="cmd-glass p-4 lg:col-span-2">
           <div className="mb-3 flex items-center gap-2">
             <Activity size={16} className="text-cyan-400" />
-            <h4 className="text-sm font-bold text-white">At a Glance</h4>
-            <span className="ml-auto rounded bg-cyan-500/15 px-2 py-0.5 text-[10px] font-semibold text-cyan-400">REAL-TIME</span>
+            <h4 className="text-sm font-bold text-white">{t('dash.atGlance')}</h4>
+            <span className="ml-auto rounded bg-cyan-500/15 px-2 py-0.5 text-[10px] font-semibold text-cyan-400">{t('dash.realTime')}</span>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            <GlanceCard icon={Droplets} label="Water Tanks" value={waterTanks.length} color="#3b82f6" />
-            <GlanceCard icon={Lightbulb} label="Street Lights" value={48} color="#eab308" />
-            <GlanceCard icon={Sprout} label="Active Farms" value={12} color="#22c55e" />
-            <GlanceCard icon={Radio} label="IoT Sensors" value={34} color="#06b6d4" />
-            <GlanceCard icon={CloudRain} label="Rainfall" value="12mm" color="#3b82f6" />
-            <GlanceCard icon={Wind} label="Air Quality" value="Good" color="#22c55e" />
+            <GlanceCard icon={Droplets} label={t('dash.waterTanks')} value={waterTanks.length} color="#3b82f6" />
+            <GlanceCard icon={Lightbulb} label={t('dash.streetLights')} value={48} color="#eab308" />
+            <GlanceCard icon={Sprout} label={t('dash.activeFarms')} value={12} color="#22c55e" />
+            <GlanceCard icon={Radio} label={t('dash.iotSensors')} value={34} color="#06b6d4" />
+            <GlanceCard icon={CloudRain} label={t('dash.rainfall')} value="12mm" color="#3b82f6" />
+            <GlanceCard icon={Wind} label={t('dash.airQuality')} value={t('dash.good')} color="#22c55e" />
           </div>
         </div>
       </div>
@@ -365,5 +367,3 @@ function GlanceCard({ icon: Icon, label, value, color }: { icon: typeof Droplets
     </div>
   );
 }
-
-
