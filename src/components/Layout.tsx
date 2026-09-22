@@ -6,7 +6,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
   LayoutDashboard, Map, ClipboardList, Droplets, Trash2, BarChart3, User,
   LogOut, Menu, X, Trees, Bell, Search, Cloud, Settings,
-  Sprout, HeartPulse, GraduationCap, Wrench, FileText,
+  Sprout, GraduationCap, Wrench, FileText,
   Bot, Mic, MessageSquare,
 } from 'lucide-react';
 import { useState, useEffect, type ReactNode } from 'react';
@@ -23,7 +23,6 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/map', labelKey: 'nav.map', icon: Map },
   { to: '/agriculture', labelKey: 'nav.agriculture', icon: Sprout },
   { to: '/water-tanks', labelKey: 'nav.water', icon: Droplets, adminOnly: true },
-  { to: '/healthcare', labelKey: 'nav.healthcare', icon: HeartPulse },
   { to: '/education', labelKey: 'nav.education', icon: GraduationCap },
   { to: '/garbage-bins', labelKey: 'nav.waste', icon: Trash2, adminOnly: true },
   { to: '/infrastructure', labelKey: 'nav.infrastructure', icon: Wrench },

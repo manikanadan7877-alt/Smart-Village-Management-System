@@ -62,10 +62,9 @@ export function ReportsPage() {
           <ModuleCardBox title="Report Categories" icon={FileBarChart} color="#06b6d4" actionLabel="View Analytics" onAction={() => navigate('/analytics')}>
             <div className="space-y-2.5">
               <StatusRow label="Water Management Reports" value="12 available" status="good" />
-              <StatusRow label="Energy Reports" value="8 available" status="good" />
               <StatusRow label="Complaint Reports" value="15 available" status="good" />
-              <StatusRow label="Healthcare Reports" value="6 available" status="good" />
               <StatusRow label="Education Reports" value="6 available" status="good" />
+              <StatusRow label="Agriculture Reports" value="8 available" status="good" />
             </div>
           </ModuleCardBox>
         </div>

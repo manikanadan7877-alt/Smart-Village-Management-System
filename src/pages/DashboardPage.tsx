@@ -7,7 +7,7 @@ import { VillageMap } from '@/components/VillageMap';
 import { AIAssistant } from '@/components/AIAssistant';
 import type { Complaint, WaterTank, GarbageBin } from '@/lib/types';
 import {
-  Users, Droplets, Zap, Sprout, HeartPulse, Cloud,
+  Users, Droplets, Zap, Sprout, Cloud,
   AlertTriangle, Plus, Send, ClipboardList, FileText, Bot,
   Activity, MapPin, Lightbulb, Radio, CloudRain, Wind,
   Layers, Eye, Sparkles,
@@ -69,6 +69,7 @@ export function DashboardPage() {
     (Math.max(0, 100 - fullBins.length * 15) * 0.25) +
     (Math.max(0, 100 - lowWaterTanks.length * 15) * 0.25)
   );
+  void villageHealthScore;
 
   // Build alerts from real data
   interface AlertItem {
@@ -140,12 +141,12 @@ export function DashboardPage() {
         <StatusCard label={t('dash.energyStatus')} value={t('dash.normal')} icon={Zap} color="#eab308" subtitle={t('dash.consumption')} onClick={() => navigate('/dashboard')} />
         <StatusCard label={t('dash.agriStatus')} value={t('dash.good')} icon={Sprout} color="#22c55e" subtitle={t('dash.cropsHealthy')} onClick={() => navigate('/agriculture')} />
         <StatusCard
-          label={t('dash.healthScore')}
-          value={`${villageHealthScore} / 100`}
-          icon={HeartPulse}
-          color={villageHealthScore >= 75 ? '#22c55e' : villageHealthScore >= 50 ? '#f59e0b' : '#ef4444'}
-          subtitle={villageHealthScore >= 75 ? t('dash.excellent') : villageHealthScore >= 50 ? t('dash.fair') : t('dash.needsAttention')}
-          onClick={() => navigate('/analytics')}
+          label="Complaints"
+          value={`${pendingCount} pending`}
+          icon={ClipboardList}
+          color={pendingCount > 0 ? '#f59e0b' : '#22c55e'}
+          subtitle={`${resolvedCount} resolved`}
+          onClick={() => navigate('/complaints')}
         />
         <StatusCard label={t('dash.weather')} value="28°C" icon={Cloud} color="#06b6d4" subtitle={t('dash.partlyCloudy')} onClick={() => navigate('/dashboard')} />
       </div>
