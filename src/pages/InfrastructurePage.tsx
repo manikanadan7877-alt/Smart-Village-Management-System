@@ -1,85 +1,82 @@
 import { useNavigate } from 'react-router-dom';
-import { ModuleHeader, FeatureGrid, ModuleCardBox, ModulePageWrapper, StatusRow } from '@/components/ModulePage';
+import { EditableModulePage, type ModuleFeatureConfig, type ModuleCardConfig } from '@/components/EditableModulePage';
 import {
   Wrench, Route, Building, Building2, Lightbulb, Construction,
   AlertTriangle, TrendingUp,
 } from 'lucide-react';
 
-const FEATURES = [
-  { icon: Route, label: 'Roads', value: '18 km', color: '#64748b' },
-  { icon: Building2, label: 'Bridges', value: '2', color: '#64748b' },
-  { icon: Building, label: 'Govt Buildings', value: '6', color: '#3b82f6' },
-  { icon: Lightbulb, label: 'Street Lights', value: '48', color: '#eab308' },
-  { icon: Construction, label: 'Active Projects', value: '3', color: '#f59e0b' },
-  { icon: AlertTriangle, label: 'Road Damages', value: '5', color: '#ef4444' },
-  { icon: Wrench, label: 'Maintenance Due', value: '2', color: '#f59e0b' },
-  { icon: TrendingUp, label: 'Asset Value', value: '2.4 Cr', color: '#22c55e' },
+const FEATURES: ModuleFeatureConfig[] = [
+  { key: 'roads', labelKey: 'infra.roads', defaultValue: '18 km', icon: Route, color: '#64748b' },
+  { key: 'bridges', labelKey: 'infra.bridges', defaultValue: '2', icon: Building2, color: '#64748b' },
+  { key: 'govt_buildings', labelKey: 'infra.govtBuildings', defaultValue: '6', icon: Building, color: '#3b82f6' },
+  { key: 'street_lights', labelKey: 'infra.streetLights', defaultValue: '48', icon: Lightbulb, color: '#eab308' },
+  { key: 'active_projects', labelKey: 'infra.activeProjects', defaultValue: '3', icon: Construction, color: '#f59e0b' },
+  { key: 'road_damages', labelKey: 'infra.roadDamages', defaultValue: '5', icon: AlertTriangle, color: '#ef4444' },
+  { key: 'maintenance_due', labelKey: 'infra.maintenanceDue', defaultValue: '2', icon: Wrench, color: '#f59e0b' },
+  { key: 'asset_value', labelKey: 'infra.assetValue', defaultValue: '2.4 Cr', icon: TrendingUp, color: '#22c55e' },
 ];
 
 export function InfrastructurePage() {
   const navigate = useNavigate();
+
+  const cards: ModuleCardConfig[] = [
+    {
+      titleKey: 'infra.roadCondition',
+      icon: Route,
+      color: '#64748b',
+      rows: [
+        { key: 'road_main_street', label: 'Main Street', defaultValue: 'Good', defaultStatus: 'good', editType: 'select', editOptions: ['Good', 'Worn surface', '2 potholes', 'Under repair', 'Critical'] },
+        { key: 'road_market', label: 'Market Road', defaultValue: '2 potholes', defaultStatus: 'bad', editType: 'select', editOptions: ['Good', 'Worn surface', '2 potholes', 'Under repair', 'Critical'] },
+        { key: 'road_school', label: 'School Road', defaultValue: 'Good', defaultStatus: 'good', editType: 'select', editOptions: ['Good', 'Worn surface', '2 potholes', 'Under repair', 'Critical'] },
+        { key: 'road_farm_access', label: 'Farm Access Road', defaultValue: 'Worn surface', defaultStatus: 'moderate', editType: 'select', editOptions: ['Good', 'Worn surface', '2 potholes', 'Under repair', 'Critical'] },
+        { key: 'road_ring', label: 'Ring Road', defaultValue: 'Good', defaultStatus: 'good', editType: 'select', editOptions: ['Good', 'Worn surface', '2 potholes', 'Under repair', 'Critical'] },
+      ],
+    },
+    {
+      titleKey: 'infra.streetLightStatus',
+      icon: Lightbulb,
+      color: '#eab308',
+      rows: [
+        { key: 'lights_main_street', label: 'Main Street (12)', defaultValue: 'All working', defaultStatus: 'good', editType: 'select', editOptions: ['All working', '1 not working', '2 not working', 'All not working'] },
+        { key: 'lights_market', label: 'Market Road (8)', defaultValue: '2 not working', defaultStatus: 'bad', editType: 'select', editOptions: ['All working', '1 not working', '2 not working', 'All not working'] },
+        { key: 'lights_school_zone', label: 'School Zone (10)', defaultValue: 'All working', defaultStatus: 'good', editType: 'select', editOptions: ['All working', '1 not working', '2 not working', 'All not working'] },
+        { key: 'lights_park', label: 'Park Area (8)', defaultValue: 'All working', defaultStatus: 'good', editType: 'select', editOptions: ['All working', '1 not working', '2 not working', 'All not working'] },
+        { key: 'lights_residential', label: 'Residential (10)', defaultValue: 'All working', defaultStatus: 'good', editType: 'select', editOptions: ['All working', '1 not working', '2 not working', 'All not working'] },
+      ],
+    },
+    {
+      titleKey: 'infra.activeProjects',
+      icon: Construction,
+      color: '#f59e0b',
+      rows: [
+        { key: 'proj_drainage', label: 'Drainage Upgrade — Main Street', defaultValue: '65% complete', defaultStatus: 'good' },
+        { key: 'proj_bus_stop', label: 'Bus Stop Construction', defaultValue: '40% complete', defaultStatus: 'moderate' },
+        { key: 'proj_street_lights', label: 'Street Light Replacement — Market Road', defaultValue: '20% complete', defaultStatus: 'moderate' },
+      ],
+    },
+    {
+      titleKey: 'infra.riskAssessment',
+      icon: AlertTriangle,
+      color: '#ef4444',
+      actionLabelKey: 'infra.viewAiAnalytics',
+      onAction: () => navigate('/analytics'),
+      rows: [
+        { key: 'risk_market_road', label: 'Market Road', defaultValue: 'High Risk', defaultStatus: 'bad', editType: 'select', editOptions: ['Low Risk', 'Moderate', 'High Risk', 'Critical'] },
+        { key: 'risk_farm_bridge', label: 'Farm Access Bridge', defaultValue: 'Moderate', defaultStatus: 'moderate', editType: 'select', editOptions: ['Low Risk', 'Moderate', 'High Risk', 'Critical'] },
+        { key: 'risk_drainage', label: 'Old Drainage System', defaultValue: 'Low Risk', defaultStatus: 'good', editType: 'select', editOptions: ['Low Risk', 'Moderate', 'High Risk', 'Critical'] },
+      ],
+    },
+  ];
+
   return (
-    <ModulePageWrapper>
-      <ModuleHeader title="Infrastructure" subtitle="Roads, bridges, buildings, street lights, and government assets" icon={Wrench} color="#64748b" />
-      <FeatureGrid features={FEATURES} />
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <ModuleCardBox title="Road Condition" icon={Route} color="#64748b">
-          <div className="space-y-2.5">
-            <StatusRow label="Main Street" value="Good" status="good" />
-            <StatusRow label="Market Road" value="2 potholes" status="bad" />
-            <StatusRow label="School Road" value="Good" status="good" />
-            <StatusRow label="Farm Access Road" value="Worn surface" status="moderate" />
-            <StatusRow label="Ring Road" value="Good" status="good" />
-          </div>
-        </ModuleCardBox>
-
-        <ModuleCardBox title="Street Light Status" icon={Lightbulb} color="#eab308" actionLabel="View Energy" onAction={() => navigate('/energy')}>
-          <div className="space-y-2.5">
-            <StatusRow label="Main Street (12)" value="All working" status="good" />
-            <StatusRow label="Market Road (8)" value="2 not working" status="bad" />
-            <StatusRow label="School Zone (10)" value="All working" status="good" />
-            <StatusRow label="Park Area (8)" value="All working" status="good" />
-            <StatusRow label="Residential (10)" value="All working" status="good" />
-          </div>
-        </ModuleCardBox>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <ModuleCardBox title="Active Projects" icon={Construction} color="#f59e0b">
-          <div className="space-y-3">
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-sm font-semibold text-slate-700">Drainage Upgrade — Main Street</p>
-              <p className="mt-1 text-xs text-slate-500">Progress: 65% | Expected: Sep 2026</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-sm font-semibold text-slate-700">Bus Stop Construction</p>
-              <p className="mt-1 text-xs text-slate-500">Progress: 40% | Expected: Oct 2026</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-sm font-semibold text-slate-700">Street Light Replacement — Market Road</p>
-              <p className="mt-1 text-xs text-slate-500">Progress: 20% | Expected: Aug 2026</p>
-            </div>
-          </div>
-        </ModuleCardBox>
-
-        <ModuleCardBox title="Infrastructure Risk Assessment" icon={AlertTriangle} color="#ef4444" actionLabel="View AI Analytics" onAction={() => navigate('/analytics')}>
-          <div className="space-y-3">
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-sm font-semibold text-slate-700">Market Road — High Risk</p>
-              <p className="mt-1 text-xs text-slate-500">2 potholes need immediate repair. Monsoon risk: high.</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-sm font-semibold text-slate-700">Farm Access Bridge — Moderate</p>
-              <p className="mt-1 text-xs text-slate-500">Minor cracks detected. Inspection recommended within 30 days.</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 p-3">
-              <p className="text-sm font-semibold text-slate-700">Old Drainage System — Low Risk</p>
-              <p className="mt-1 text-xs text-slate-500">Upgrade in progress. Current system functional.</p>
-            </div>
-          </div>
-        </ModuleCardBox>
-      </div>
-    </ModulePageWrapper>
+    <EditableModulePage
+      moduleName="infrastructure"
+      titleKey="infra.title"
+      subtitleKey="infra.subtitle"
+      icon={Wrench}
+      color="#64748b"
+      features={FEATURES}
+      cards={cards}
+    />
   );
 }

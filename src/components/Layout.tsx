@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useI18n } from '@/context/I18nContext';
 import { AIAssistant } from '@/components/AIAssistant';
+import { NotificationBell } from '@/components/NotificationBell';
 import type { LucideIcon } from 'lucide-react';
 import {
   LayoutDashboard, Map, ClipboardList, Droplets, Trash2, BarChart3, User,
@@ -151,10 +152,7 @@ function TopBar({ profile, onMobileMenu, onSignOut, t }: { profile: { full_name:
           </div>
         </div>
 
-        <button className="relative rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white">
-          <Bell size={18} />
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
-        </button>
+        <NotificationBell />
         <button className="hidden rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white sm:block">
           <MessageSquare size={18} />
         </button>
