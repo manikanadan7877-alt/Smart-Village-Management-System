@@ -27,14 +27,14 @@ export function DashboardPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [c, t, b] = await Promise.all([
+        const [c, wt, gb] = await Promise.all([
           fetchComplaints(),
           fetchWaterTanks(),
           fetchGarbageBins(),
         ]);
         setComplaints(c);
-        setWaterTanks(t);
-        setGarbageBins(b);
+        setWaterTanks(wt);
+        setGarbageBins(gb);
       } catch (err) {
         console.error('Dashboard load error:', err);
       } finally {
@@ -51,10 +51,10 @@ export function DashboardPage() {
   const resolutionRate = totalComplaints > 0 ? Math.round((resolvedCount / totalComplaints) * 100) : 0;
 
   const avgWaterPct = waterTanks.length > 0
-    ? Math.round(waterTanks.reduce((sum, t) => sum + (t.capacity_liters > 0 ? (t.current_level_liters / t.capacity_liters) * 100 : 0), 0) / waterTanks.length)
+    ? Math.round(waterTanks.reduce((sum, wt) => sum + (wt.capacity_liters > 0 ? (wt.current_level_liters / wt.capacity_liters) * 100 : 0), 0) / waterTanks.length)
     : 0;
-  const lowWaterTanks = waterTanks.filter((t) => {
-    const pct = t.capacity_liters > 0 ? (t.current_level_liters / t.capacity_liters) * 100 : 0;
+  const lowWaterTanks = waterTanks.filter((wt) => {
+    const pct = wt.capacity_liters > 0 ? (wt.current_level_liters / wt.capacity_liters) * 100 : 0;
     return pct <= 30;
   });
 
@@ -80,10 +80,10 @@ export function DashboardPage() {
     route: string;
   }
   const alerts: AlertItem[] = [];
-  lowWaterTanks.forEach((t) => {
-    const pct = (t.current_level_liters / t.capacity_liters) * 100;
+  lowWaterTanks.forEach((wt) => {
+    const pct = (wt.current_level_liters / wt.capacity_liters) * 100;
     alerts.push({
-      type: 'water', title: `${t('dash.waterShortage')}: ${t.name}`, subtitle: `${pct.toFixed(0)}%`,
+      type: 'water', title: `${t('dash.waterShortage')}: ${wt.name}`, subtitle: `${pct.toFixed(0)}%`,
       severity: 'high', route: '/water-tanks',
     });
   });

@@ -1,13 +1,17 @@
 import { useState, useRef, useEffect, type KeyboardEvent } from 'react';
 import { Search, Loader2, MapPin, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { searchLocations } from '@/lib/geocode';
 import { useI18n } from '@/context/I18nContext';
 import type { SearchResult } from '@/lib/village-types';
 
-export function LocationSearch() {
-  const { t, setVillage } = useI18n();
-  const navigate = useNavigate();
+interface LocationSearchProps {
+  onSelect?: (result: SearchResult) => void;
+  navigateOnSelect?: boolean;
+  className?: string;
+}
+
+export function LocationSearch({ onSelect, navigateOnSelect = false, className }: LocationSearchProps) {
+  const { t } = useI18n();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -56,19 +60,11 @@ export function LocationSearch() {
   }
 
   function selectResult(r: SearchResult) {
-    setVillage({
-      name: r.name,
-      district: r.district,
-      state: r.state,
-      country: r.country,
-      latitude: r.lat,
-      longitude: r.lon,
-    });
     setQuery(r.name);
     setShowResults(false);
     setResults([]);
     setError('');
-    navigate('/map');
+    onSelect?.(r);
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
@@ -92,7 +88,7 @@ export function LocationSearch() {
   }
 
   return (
-    <div ref={containerRef} className="relative hidden flex-1 max-w-md md:block">
+    <div ref={containerRef} className={`relative flex-1 max-w-md ${className ?? ''}`}>
       <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2">
         <button onClick={submitSearch} className="text-slate-400 hover:text-white">
           <Search size={16} />

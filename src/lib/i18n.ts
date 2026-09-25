@@ -1,5 +1,7 @@
 import type { Language } from './village-types';
 
+export type { Language };
+
 type Dict = Record<string, string>;
 
 export const translations: Record<Language, Dict> = {

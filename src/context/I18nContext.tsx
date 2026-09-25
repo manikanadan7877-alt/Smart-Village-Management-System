@@ -7,7 +7,8 @@ import {
   type ReactNode,
 } from "react";
 
-import { translations, type Language } from "@/lib/i18n";
+import { translations } from "@/lib/i18n";
+import type { Language } from "@/lib/village-types";
 
 type TranslationKey = keyof typeof translations.en;
 
