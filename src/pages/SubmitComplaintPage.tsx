@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { VillageMap } from '@/components/VillageMap';
+import { LocationSearch } from '@/components/LocationSearch';
 import { CATEGORY_OPTIONS, type ComplaintCategory, type ClassificationResult } from '@/lib/types';
 import { createComplaint, uploadComplaintImage, classifyComplaint } from '@/lib/api';
 
@@ -243,8 +244,18 @@ export function SubmitComplaintPage() {
             Select Location on Map
           </h2>
           <p className="mb-3 text-sm text-slate-500">
-            Click on the map to pin the exact location of the issue
+            Search for a location or click on the map to pin the exact location of the issue
           </p>
+          <div className="mb-3">
+            <LocationSearch
+              variant="light"
+              className="w-full"
+              onSelect={(r) => {
+                setSelectedLocation({ lat: r.lat, lng: r.lon });
+                if (!locationLabel.trim()) setLocationLabel(r.name);
+              }}
+            />
+          </div>
           <VillageMap
             selectable
             selectedLocation={selectedLocation}

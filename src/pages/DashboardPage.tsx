@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useI18n } from '@/context/I18nContext';
+import { useMapSearch } from '@/context/MapSearchContext';
 import { fetchComplaints, fetchWaterTanks, fetchGarbageBins } from '@/lib/api';
 import { VillageMap } from '@/components/VillageMap';
 import { AIAssistant } from '@/components/AIAssistant';
@@ -17,6 +18,7 @@ export function DashboardPage() {
   const { profile } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
+  const { mapCenter } = useMapSearch();
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [waterTanks, setWaterTanks] = useState<WaterTank[]>([]);
   const [garbageBins, setGarbageBins] = useState<GarbageBin[]>([]);
@@ -118,7 +120,7 @@ export function DashboardPage() {
   const firstName = profile?.full_name?.split(' ')[0] || 'Admin';
 
   return (
-    <div className="cmd-bg cmd-grid-pattern -m-4 min-h-[calc(100vh-4rem)] rounded-tl-2xl p-4 lg:p-6 space-y-5">
+    <div className="-m-4 min-h-[calc(100vh-4rem)] rounded-tl-2xl bg-[#e8eef5] p-4 lg:p-6 space-y-5">
       {/* Welcome section */}
       <div className="cmd-fade-up" style={{ animationDelay: '0s' }}>
         <h1 className="text-2xl font-bold text-white">
@@ -183,6 +185,7 @@ export function DashboardPage() {
               garbageBins={garbageBins}
               height="440px"
               showAll
+              centerOn={mapCenter ? { lat: mapCenter.lat, lng: mapCenter.lng } : null}
             />
             {mapMode === '3d' && (
               <div className="pointer-events-none absolute bottom-3 left-3 rounded-lg bg-black/60 px-3 py-1.5 text-[11px] text-slate-300 backdrop-blur-sm">

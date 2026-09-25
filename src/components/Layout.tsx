@@ -1,12 +1,14 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useI18n } from '@/context/I18nContext';
+import { useMapSearch } from '@/context/MapSearchContext';
 import { AIAssistant } from '@/components/AIAssistant';
 import { NotificationBell } from '@/components/NotificationBell';
+import { LocationSearch } from '@/components/LocationSearch';
 import type { LucideIcon } from 'lucide-react';
 import {
   LayoutDashboard, Map, ClipboardList, Droplets, Trash2, BarChart3, User,
-  LogOut, Menu, X, Trees, Bell, Search, Cloud, Settings,
+  LogOut, Menu, X, Trees, Cloud, Settings,
   Sprout, GraduationCap, Wrench, FileText,
   Bot, Mic, MessageSquare,
 } from 'lucide-react';
@@ -95,6 +97,7 @@ function TopBar({ profile, onMobileMenu, onSignOut, t }: { profile: { full_name:
   const [now, setNow] = useState(new Date());
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
+  const { setMapCenter } = useMapSearch();
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -126,15 +129,13 @@ function TopBar({ profile, onMobileMenu, onSignOut, t }: { profile: { full_name:
       </div>
 
       {/* Center: search */}
-      <div className="hidden flex-1 max-w-md items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 md:flex">
-        <Search size={16} className="text-slate-500" />
-        <input
-          type="text"
-          placeholder={t('header.searchPlaceholder')}
-          className="flex-1 bg-transparent text-sm text-slate-200 placeholder-slate-500 outline-none"
-        />
-        <kbd className="hidden rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-400 lg:block">Ctrl K</kbd>
-      </div>
+      <LocationSearch
+        className="hidden md:block"
+        onSelect={(r) => {
+          setMapCenter({ lat: r.lat, lng: r.lon, name: r.name });
+          if (window.location.pathname !== '/dashboard') navigate('/dashboard');
+        }}
+      />
 
       {/* Right: weather, date, time, notifications, profile */}
       <div className="flex items-center gap-2 lg:gap-3">

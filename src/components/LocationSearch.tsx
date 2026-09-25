@@ -8,9 +8,10 @@ interface LocationSearchProps {
   onSelect?: (result: SearchResult) => void;
   navigateOnSelect?: boolean;
   className?: string;
+  variant?: 'dark' | 'light';
 }
 
-export function LocationSearch({ onSelect, navigateOnSelect = false, className }: LocationSearchProps) {
+export function LocationSearch({ onSelect, navigateOnSelect = false, className, variant = 'dark' }: LocationSearchProps) {
   const { t } = useI18n();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -87,10 +88,25 @@ export function LocationSearch({ onSelect, navigateOnSelect = false, className }
     setShowResults(false);
   }
 
+  const isDark = variant === 'dark';
+  const inputBorder = isDark ? 'border-white/[0.08] bg-white/[0.03]' : 'border-slate-200 bg-slate-50';
+  const inputText = isDark ? 'text-slate-200 placeholder-slate-500' : 'text-slate-700 placeholder-slate-400';
+  const iconColor = isDark ? 'text-slate-400 hover:text-white' : 'text-slate-400 hover:text-slate-700';
+  const clearColor = isDark ? 'text-slate-500 hover:text-white' : 'text-slate-400 hover:text-slate-700';
+  const kbdClass = isDark ? 'bg-white/5 text-slate-400' : 'bg-slate-200 text-slate-500';
+  const dropdownClass = isDark
+    ? 'cmd-glass absolute top-12 left-0 right-0 z-50 max-h-72 overflow-y-auto rounded-xl p-2 cmd-scrollbar animate-slide-in'
+    : 'absolute top-12 left-0 right-0 z-50 max-h-72 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-xl animate-slide-in';
+  const resultHover = isDark ? 'hover:bg-white/[0.06]' : 'hover:bg-slate-100';
+  const resultName = isDark ? 'text-slate-200' : 'text-slate-800';
+  const resultSub = isDark ? 'text-slate-500' : 'text-slate-500';
+  const loadingText = isDark ? 'text-slate-400' : 'text-slate-500';
+  const errorText = isDark ? 'text-slate-400' : 'text-slate-500';
+
   return (
     <div ref={containerRef} className={`relative flex-1 max-w-md ${className ?? ''}`}>
-      <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2">
-        <button onClick={submitSearch} className="text-slate-400 hover:text-white">
+      <div className={`flex items-center gap-2 rounded-xl border ${inputBorder} px-3 py-2`}>
+        <button onClick={submitSearch} className={iconColor}>
           <Search size={16} />
         </button>
         <input
@@ -100,37 +116,37 @@ export function LocationSearch({ onSelect, navigateOnSelect = false, className }
           onKeyDown={handleKeyDown}
           onFocus={() => results.length > 0 && setShowResults(true)}
           placeholder={t('header.searchPlaceholder')}
-          className="flex-1 bg-transparent text-sm text-slate-200 placeholder-slate-500 outline-none"
+          className={`flex-1 bg-transparent text-sm ${inputText} outline-none`}
         />
         {loading && <Loader2 size={16} className="animate-spin text-slate-400" />}
         {query && !loading && (
-          <button onClick={clearSearch} className="text-slate-500 hover:text-white">
+          <button onClick={clearSearch} className={clearColor}>
             <X size={15} />
           </button>
         )}
-        <kbd className="hidden rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-400 lg:block">Enter</kbd>
+        <kbd className={`hidden rounded px-1.5 py-0.5 text-[10px] lg:block ${kbdClass}`}>Enter</kbd>
       </div>
 
       {showResults && (loading || error || results.length > 0) && (
-        <div className="cmd-glass absolute top-12 left-0 right-0 z-50 max-h-72 overflow-y-auto rounded-xl p-2 cmd-scrollbar animate-slide-in">
+        <div className={dropdownClass}>
           {loading && (
-            <div className="flex items-center gap-2 p-3 text-sm text-slate-400">
+            <div className={`flex items-center gap-2 p-3 text-sm ${loadingText}`}>
               <Loader2 size={15} className="animate-spin" /> {t('common.searching')}
             </div>
           )}
           {!loading && error && (
-            <div className="p-3 text-sm text-slate-400">{error}</div>
+            <div className={`p-3 text-sm ${errorText}`}>{error}</div>
           )}
           {!loading && results.length > 0 && results.map((r, i) => (
             <button
               key={i}
               onClick={() => selectResult(r)}
-              className="flex w-full items-start gap-2.5 rounded-lg p-2.5 text-left transition-colors hover:bg-white/[0.06]"
+              className={`flex w-full items-start gap-2.5 rounded-lg p-2.5 text-left transition-colors ${resultHover}`}
             >
-              <MapPin size={16} className="mt-0.5 flex-shrink-0 text-green-400" />
+              <MapPin size={16} className="mt-0.5 flex-shrink-0 text-green-500" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-slate-200">{r.name}</p>
-                <p className="truncate text-[11px] text-slate-500">{r.displayName}</p>
+                <p className={`truncate text-sm font-medium ${resultName}`}>{r.name}</p>
+                <p className={`truncate text-[11px] ${resultSub}`}>{r.displayName}</p>
               </div>
             </button>
           ))}

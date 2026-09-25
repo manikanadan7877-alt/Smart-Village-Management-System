@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { I18nProvider } from '@/context/I18nContext';
+import { MapSearchProvider } from '@/context/MapSearchContext';
 import { Layout } from '@/components/Layout';
 import { AuthPage } from '@/pages/AuthPage';
 import { DashboardPage } from '@/pages/DashboardPage';
@@ -113,9 +114,11 @@ export default function App() {
   return (
     <AuthProvider>
       <I18nProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <MapSearchProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </MapSearchProvider>
       </I18nProvider>
     </AuthProvider>
   );
