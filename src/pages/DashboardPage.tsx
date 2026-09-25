@@ -120,7 +120,7 @@ export function DashboardPage() {
   const firstName = profile?.full_name?.split(' ')[0] || 'Admin';
 
   return (
-    <div className="-m-4 min-h-[calc(100vh-4rem)] rounded-tl-2xl bg-[#e8eef5] p-4 lg:p-6 space-y-5">
+    <div className="-m-4 min-h-[calc(100vh-4rem)] rounded-tl-2xl bg-[#d3dde8] p-4 lg:p-6 space-y-5">
       {/* Welcome section */}
       <div className="cmd-fade-up" style={{ animationDelay: '0s' }}>
         <h1 className="text-2xl font-bold text-white">
