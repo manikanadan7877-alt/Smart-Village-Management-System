@@ -17,6 +17,7 @@ import { EducationPage } from '@/pages/EducationPage';
 import { InfrastructurePage } from '@/pages/InfrastructurePage';
 import { ReportsPage } from '@/pages/ReportsPage';
 import { SettingsPage } from '@/pages/SettingsPage';
+import { LandingPage } from '@/pages/LandingPage';
 import type { ReactNode } from 'react';
 
 function ProtectedRoute({ children, adminOnly = false }: { children: ReactNode; adminOnly?: boolean }) {
@@ -60,9 +61,28 @@ function PublicRoute({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+function LandingRoute() {
+  const { session, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-950">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
+      </div>
+    );
+  }
+
+  if (session) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <LandingPage />;
+}
+
 function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<LandingRoute />} />
       <Route path="/login" element={<PublicRoute><AuthPage mode="login" /></PublicRoute>} />
       <Route path="/signup" element={<PublicRoute><AuthPage mode="signup" /></PublicRoute>} />
 
@@ -83,8 +103,8 @@ function AppRoutes() {
       <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
 
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<LandingRoute />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
